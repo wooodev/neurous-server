@@ -6,6 +6,7 @@ import com.example.server.domain.content.dto.DifficultyRecommendResponse;
 import com.example.server.domain.content.entity.Content;
 import com.example.server.domain.content.entity.ContentDifficultyEvaluation;
 import com.example.server.domain.content.entity.DifficultyBasetime;
+import com.example.server.domain.content.entity.ReadContent;
 import com.example.server.domain.content.entity.vo.ContentDifficulty;
 import com.example.server.domain.content.entity.vo.DifficultyRecommend;
 import com.example.server.domain.content.repository.*;
@@ -226,6 +227,24 @@ public class ContentService {
         DifficultyRecommendResponse response = new DifficultyRecommendResponse(recommend);
 
         return response;
+    }
+
+    /**
+     * 읽음 체크
+     */
+    public void setContentRead(Long userId, int contentId) {
+
+        if (!contentRepository.existsById(contentId)) {
+            throw new NotFoundException(ErrorMessage.CONTENT_NOT_FOUND);
+        }
+
+        if (readContentRepository.findByUserIdAndContentId(userId, contentId).isPresent()) {
+            throw new ConflictException(ErrorMessage.CONTENT_ALREADY_READ);
+        }
+
+        ReadContent readContent = ReadContent.of(userId, contentId, LocalDateTime.now());
+
+        readContentRepository.save(readContent);
     }
 
 }

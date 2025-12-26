@@ -9,6 +9,7 @@ import com.example.server.global.exception.dto.SuccessResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 import jakarta.validation.Valid;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 
 import java.util.List;
@@ -51,5 +52,11 @@ public interface ContentControllerDocs {
             @CurrentUserId Long userId,
             int contentId,
             @RequestBody @Valid ContentDifficultyRequest difficulty
+    );
+
+    @SetContentReadDocs
+    SuccessResponse<Void> setContentRead(
+            @CurrentUserId Long userId,
+            int contentId
     );
 }

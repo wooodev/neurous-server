@@ -45,7 +45,7 @@ public class ContentController implements ContentControllerDocs {
     @PublicApi
     @GetMapping("/detail")
     public SuccessResponse<ContentResponse> getContentDetail(
-            @RequestParam("contentId") int contentId
+            @PathVariable int contentId
     ) {
         ContentResponse contentResponse = contentService.getContentDetail(contentId);
         return SuccessResponse.of(SuccessMessage.LOAD_SUCCESS, contentResponse);
@@ -76,10 +76,21 @@ public class ContentController implements ContentControllerDocs {
     @PostMapping("/evaluation")
     public SuccessResponse<DifficultyRecommendResponse> setContentEvaluation(
             @CurrentUserId Long userId,
-            @RequestParam("contentId") int contentId,
+            @PathVariable int contentId,
             @RequestBody ContentDifficultyRequest difficulty
     ) {
         DifficultyRecommendResponse result = contentService.setDifficultyEvaluation(userId, contentId, difficulty);
         return SuccessResponse.of(SuccessMessage.UPDATE_SUCCESS, result);
     }
+
+    @AuthenticatedApi
+    @PostMapping("/{contentId}/read")
+    public SuccessResponse<Void> setContentRead(
+            @CurrentUserId Long userId,
+            @PathVariable int contentId
+    ) {
+        contentService.setContentRead(userId, contentId);
+        return SuccessResponse.of(SuccessMessage.UPDATE_SUCCESS);
+    }
+
 }

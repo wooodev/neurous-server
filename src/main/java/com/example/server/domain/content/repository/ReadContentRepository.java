@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface ReadContentRepository extends JpaRepository<ReadContent, Integer> {
 
@@ -18,4 +19,6 @@ public interface ReadContentRepository extends JpaRepository<ReadContent, Intege
             ORDER BY rc.read_content_id DESC
             """, nativeQuery = true)
     List<Content> findReadContentsByUserId(Long userId, Pageable pageable);
+
+    Optional<ReadContent> findByUserIdAndContentId(Long userId, Integer contentId);
 }
