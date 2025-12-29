@@ -51,6 +51,9 @@ public enum ErrorMessage {
 	QUIZ_NOT_FOUND(404, "QUIZ5002", "존재하지 않는 퀴즈입니다."),
 	QUIZ_INVALID_CHOICE(400, "QUIZ5003", "존재하지 않는 선택지입니다."),
 	QUIZ_CORRECT_ANSWER_NOT_CONFIGURED(500, "QUIZ5004", "퀴즈 정답 데이터가 설정되지 않았습니다."),
+	QUIZ_SOLVE_NOT_FOUND(404, "QUIZ5005", "해당 콘텐츠에 대한 퀴즈 풀이 기록이 없습니다."),
+	QUIZ_CORRECT_CHOICE_NOT_FOUND(404, "QUIZ5006", "정답 선택지가 설정되지 않았습니다."),
+	QUIZ_ALREADY_SOLVED(409, "QUIZ5007", "이미 퀴즈를 제출했습니다."),
 
 	// 서버 에러
 	INTERNAL_SERVER_ERROR(500, "INT5000", "서버 내부 오류가 발생했습니다.");

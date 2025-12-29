@@ -31,6 +31,10 @@ import java.lang.annotation.Target;
         description = "존재하지 않는 퀴즈"
 )
 @ApiResponse(
+        responseCode = "409",
+        description = "이미 퀴즈를 제출했습니다."
+)
+@ApiResponse(
         responseCode = "500",
         description = "서버 내부 오류"
 )

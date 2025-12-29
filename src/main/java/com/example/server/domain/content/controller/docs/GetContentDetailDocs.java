@@ -15,7 +15,7 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Operation(
         summary = "콘텐츠 상세 조회",
-        description = "contentId로 콘텐츠 상세 정보를 조회합니다."
+        description = "콘텐츠 상세 정보를 조회합니다."
 )
 @ApiResponse(
         responseCode = "200",

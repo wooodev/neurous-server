@@ -24,7 +24,7 @@ public class QuizController {
     @GetMapping("/set")
     public SuccessResponse<QuizQuestionResponse> getQuiz(
             @CurrentUserId Long userId,
-            @RequestParam("contentId") int contentId
+            @PathVariable int contentId
     ) {
         QuizQuestionResponse result = quizService.getQuiz(userId, contentId);
         return SuccessResponse.of(SuccessMessage.LOAD_SUCCESS, result);
@@ -33,10 +33,11 @@ public class QuizController {
     @AuthenticatedApi
     @PostMapping("/quiz/{quizId}/submit")
     public SuccessResponse<QuizSubmitResponse> submit(
-            @PathVariable("quizId") int quizId,
+            @CurrentUserId Long userId,
+            @PathVariable int quizId,
             @RequestBody QuizSubmitRequest request
     ) {
-        QuizSubmitResponse result = quizService.submit(quizId, request.selectedNo());
+        QuizSubmitResponse result = quizService.submit(userId, quizId, request.selectedNo());
         return SuccessResponse.of(SuccessMessage.LOAD_SUCCESS, result);
     }
 }

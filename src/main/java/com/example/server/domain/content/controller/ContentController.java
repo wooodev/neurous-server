@@ -5,6 +5,7 @@ import com.example.server.domain.content.dto.ContentResponse;
 import com.example.server.domain.content.dto.ContentDifficultyRequest;
 import com.example.server.domain.content.dto.DifficultyRecommendResponse;
 import com.example.server.domain.content.service.ContentService;
+import com.example.server.domain.quiz.dto.ReadContentDetailResponse;
 import com.example.server.global.annotation.CurrentUserId;
 import com.example.server.global.exception.dto.SuccessResponse;
 import com.example.server.global.exception.message.SuccessMessage;
@@ -63,16 +64,6 @@ public class ContentController implements ContentControllerDocs {
     }
 
     @AuthenticatedApi
-    @GetMapping("/history")
-    public SuccessResponse<List<ContentResponse>> getReadHistory(
-            @CurrentUserId Long userId,
-            @RequestParam(value = "page", defaultValue = "0") int page
-    ) {
-        List<ContentResponse> result = contentService.getReadHistory(userId, page);
-        return SuccessResponse.of(SuccessMessage.LOAD_SUCCESS, result);
-    }
-
-    @AuthenticatedApi
     @PostMapping("/evaluation")
     public SuccessResponse<DifficultyRecommendResponse> setContentEvaluation(
             @CurrentUserId Long userId,
@@ -91,6 +82,16 @@ public class ContentController implements ContentControllerDocs {
     ) {
         contentService.setContentRead(userId, contentId);
         return SuccessResponse.of(SuccessMessage.UPDATE_SUCCESS);
+    }
+
+    @AuthenticatedApi
+    @GetMapping("/{contentId}/read-detail")
+    public SuccessResponse<ReadContentDetailResponse> getReadDetail(
+            @CurrentUserId Long userId,
+            @PathVariable int contentId
+    ) {
+        ReadContentDetailResponse result = contentService.getReadContentDetail(userId, contentId);
+        return SuccessResponse.of(SuccessMessage.LOAD_SUCCESS, result);
     }
 
 }

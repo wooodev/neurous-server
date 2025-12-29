@@ -4,12 +4,12 @@ import com.example.server.domain.content.dto.ContentDifficultyRequest;
 import com.example.server.domain.content.dto.ContentResponse;
 import com.example.server.domain.content.dto.DifficultyRecommendResponse;
 
+import com.example.server.domain.quiz.dto.ReadContentDetailResponse;
 import com.example.server.global.annotation.CurrentUserId;
 import com.example.server.global.exception.dto.SuccessResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 import jakarta.validation.Valid;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 
 import java.util.List;
@@ -41,12 +41,6 @@ public interface ContentControllerDocs {
             int page
     );
 
-    @GetReadHistoryDocs
-    SuccessResponse<List<ContentResponse>> getReadHistory(
-            @CurrentUserId Long userId,
-            int page
-    );
-
     @SetContentEvaluationDocs
     SuccessResponse<DifficultyRecommendResponse> setContentEvaluation(
             @CurrentUserId Long userId,
@@ -56,6 +50,12 @@ public interface ContentControllerDocs {
 
     @SetContentReadDocs
     SuccessResponse<Void> setContentRead(
+            @CurrentUserId Long userId,
+            int contentId
+    );
+
+    @SetContentReadDocs
+    SuccessResponse<ReadContentDetailResponse> getReadDetail(
             @CurrentUserId Long userId,
             int contentId
     );

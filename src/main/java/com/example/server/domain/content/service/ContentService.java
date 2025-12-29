@@ -10,6 +10,15 @@ import com.example.server.domain.content.entity.ReadContent;
 import com.example.server.domain.content.entity.vo.ContentDifficulty;
 import com.example.server.domain.content.entity.vo.DifficultyRecommend;
 import com.example.server.domain.content.repository.*;
+import com.example.server.domain.quiz.dto.QuizChoiceResponse;
+import com.example.server.domain.quiz.dto.ReadContentDetailResponse;
+import com.example.server.domain.quiz.dto.SolvedQuizResponse;
+import com.example.server.domain.quiz.entity.Quiz;
+import com.example.server.domain.quiz.entity.QuizChoice;
+import com.example.server.domain.quiz.entity.QuizSolve;
+import com.example.server.domain.quiz.repository.QuizChoiceRepository;
+import com.example.server.domain.quiz.repository.QuizRepository;
+import com.example.server.domain.quiz.repository.QuizSolveRepository;
 import com.example.server.domain.user.entity.vo.UserField;
 import com.example.server.domain.user.repository.UserRepository;
 import com.example.server.global.exception.message.ErrorMessage;
@@ -35,8 +44,11 @@ public class ContentService {
     private final ReadContentRepository readContentRepository;
     private final ContentDifficultyEvaluationRepository contentDifficultyEvaluationRepository;
     private final DifficultyBasetimeRepository difficultyBasetimeRepository;
+    private final QuizSolveRepository quizSolveRepository;
+    private final QuizRepository quizRepository;
+    private final QuizChoiceRepository quizChoiceRepository;
 
-    private static final List<String> CATEGORIES = List.of("정치", "경제", "사회", "생활/문화", "IT/과학", "세계");
+    private static final List<String> CATEGORIES = List.of("POLITICS", "ECONOMY", "SOCIETY", "LIFE_CULTURE", "IT/IT_SCIENCE", "WORLD");
     private static final int RESULT_SIZE = 3;
 
     /**
@@ -47,7 +59,7 @@ public class ContentService {
         PageRequest pageRequest = PageRequest.of(page, size);
 
         String ContentDiff = userRepository.findLevelByUserId(userId)
-                .orElse("초급");
+                .orElse("INTERMEDIATE");
 
         Map<String, List<ContentResponse>> result = new LinkedHashMap<>();
 
@@ -64,7 +76,7 @@ public class ContentService {
      * 오늘의 미션 컨텐츠 조회
      */
     public List<ContentResponse> getTodayContent(Long userId) {
-        String difficulty = userRepository.findLevelByUserId(userId).orElse("초급");
+        String difficulty = userRepository.findLevelByUserId(userId).orElse("INTERMEDIATE");
 
         List<String> categories = userInterestRepository.findInterestsByUserIdOrderByPriorityAsc(userId).stream()
                 .map(UserField::getDescription)
@@ -150,7 +162,7 @@ public class ContentService {
 
         int size = 10;
 
-        String diff = userRepository.findLevelByUserId(userId).orElse("초급");
+        String diff = userRepository.findLevelByUserId(userId).orElse("INTERMEDIATE");
 
         return contentRepository.searchByTitle(
                         diff,
@@ -158,23 +170,6 @@ public class ContentService {
                         PageRequest.of(page, size)
                 )
                 .stream()
-                .map(ContentResponse::from)
-                .toList();
-    }
-
-    /**
-     * 읽은 내역 조회
-     */
-    public List<ContentResponse> getReadHistory(Long userId, int page) {
-
-        int size = 10;
-
-        List<Content> contents = readContentRepository.findReadContentsByUserId(
-                userId,
-                PageRequest.of(page, size)
-        );
-
-        return contents.stream()
                 .map(ContentResponse::from)
                 .toList();
     }
@@ -247,4 +242,38 @@ public class ContentService {
         readContentRepository.save(readContent);
     }
 
+    /**
+     * 읽은 글 상세
+     */
+    public ReadContentDetailResponse getReadContentDetail(Long userId, int contentId) {
+
+        ContentResponse content = getContentDetail(contentId);
+
+        QuizSolve solve = quizSolveRepository.findByUserIdAndContentId(userId, contentId)
+                .orElseThrow(() -> new NotFoundException(ErrorMessage.QUIZ_SOLVE_NOT_FOUND));
+
+        Quiz quiz = quizRepository.findById(solve.getQuizId())
+                .orElseThrow(() -> new NotFoundException(ErrorMessage.QUIZ_NOT_FOUND));
+
+        List<QuizChoiceResponse> choices = quizChoiceRepository.findByQuizIdOrderByChoiceNoAsc(quiz.getQuizId())
+                .stream()
+                .map(QuizChoiceResponse::from)
+                .toList();
+
+        QuizChoice correct = quizChoiceRepository.findByQuizIdAndIsCorrectTrue(quiz.getQuizId())
+                .orElseThrow(() -> new NotFoundException(ErrorMessage.QUIZ_CORRECT_CHOICE_NOT_FOUND));
+
+        SolvedQuizResponse solvedQuiz = SolvedQuizResponse.of(
+                quiz.getQuizId(),
+                quiz.getContentId(),
+                quiz.getQuizContent(),
+                choices,
+                correct.getChoiceNo(),
+                solve.isAnswerCorrect()
+        );
+
+        ReadContentDetailResponse response = ReadContentDetailResponse.of(content, solvedQuiz);
+
+        return response;
+    }
 }
