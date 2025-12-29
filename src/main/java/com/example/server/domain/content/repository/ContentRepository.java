@@ -54,5 +54,9 @@ public interface ContentRepository extends JpaRepository<Content, Integer> {
             ORDER BY c.content_id DESC
             """, nativeQuery = true)
     List<Content> searchByTitle(String contentDiff, String keyword, Pageable pageable);
+
+    boolean existsByTitleAndContentDiff(String title, String contentDiff);
+
+    boolean existsByNewsArticleIdAndContentDiff(Long newsArticleId, String contentDiff);
 }
 

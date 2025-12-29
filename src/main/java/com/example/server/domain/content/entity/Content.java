@@ -19,7 +19,8 @@ public class Content {
     @Column(name = "title")
     private String title;
 
-    @Column(name = "content")
+    @Lob
+    @Column(name = "content", columnDefinition = "LONGTEXT", nullable = false)
     private String content;
 
     @Column(name = "content_category")
@@ -30,4 +31,7 @@ public class Content {
 
     @Column(name = "image_url")
     private String imageUrl;
+
+    @Column(name = "news_article_id")
+    private Long newsArticleId;
 }
