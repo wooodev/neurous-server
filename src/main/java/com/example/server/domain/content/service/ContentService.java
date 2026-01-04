@@ -40,7 +40,6 @@ import com.example.server.domain.quiz.dto.response.ReadContentDetailResponse;
 import com.example.server.domain.quiz.dto.response.SolvedQuizResponse;
 import com.example.server.domain.quiz.entity.Quiz;
 import com.example.server.domain.quiz.entity.QuizChoice;
-import com.example.server.domain.quiz.entity.QuizSolve;
 import com.example.server.domain.quiz.repository.QuizChoiceRepository;
 import com.example.server.domain.quiz.repository.QuizRepository;
 import com.example.server.domain.quiz.repository.QuizSolveRepository;
@@ -87,6 +86,7 @@ public class ContentService {
 	 * 컨텐츠 조회 / 검색
 	 */
 	//<전체 탐색>
+	@Transactional
 	public Map<ContentCategory, ExploreResponse> getExplore(Long userId) {
 
 		LocalDateTime now = LocalDateTime.now();
@@ -165,32 +165,36 @@ public class ContentService {
 
 		ContentDetailResponse contentDetail = getContentDetailWithCount(userId, contentId);
 
-		QuizSolve solve = quizSolveRepository.findByUser_IdAndReadContent_Content_ContentId(userId, contentId)
-			.orElseThrow(() -> new NotFoundException(ErrorMessage.QUIZ_SOLVE_NOT_FOUND));
+		return quizSolveRepository.findByUser_IdAndReadContent_Content_ContentId(userId, contentId)
+			.map(solve -> {
+				Quiz quiz = quizRepository.findById(solve.getQuizId())
+					.orElseThrow(() -> new NotFoundException(ErrorMessage.QUIZ_NOT_FOUND));
 
-		Quiz quiz = quizRepository.findById(solve.getQuizId())
-			.orElseThrow(() -> new NotFoundException(ErrorMessage.QUIZ_NOT_FOUND));
+				List<QuizChoiceResponse> choices = quizChoiceRepository.findByQuiz_QuizIdOrderByChoiceNoAsc(
+						quiz.getQuizId())
+					.stream()
+					.map(QuizChoiceResponse::from)
+					.toList();
 
-		List<QuizChoiceResponse> choices = quizChoiceRepository.findByQuiz_QuizIdOrderByChoiceNoAsc(quiz.getQuizId())
-			.stream()
-			.map(QuizChoiceResponse::from)
-			.toList();
+				QuizChoice correct = quizChoiceRepository.findByQuiz_QuizIdAndIsCorrectTrue(quiz.getQuizId())
+					.orElseThrow(() -> new NotFoundException(ErrorMessage.QUIZ_CORRECT_CHOICE_NOT_FOUND));
 
-		QuizChoice correct = quizChoiceRepository.findByQuiz_QuizIdAndIsCorrectTrue(quiz.getQuizId())
-			.orElseThrow(() -> new NotFoundException(ErrorMessage.QUIZ_CORRECT_CHOICE_NOT_FOUND));
+				SolvedQuizResponse solvedQuiz = SolvedQuizResponse.of(
+					quiz.getQuizId(),
+					contentId,
+					quiz.getQuestion(),
+					choices,
+					solve.getSelectedNo(),
+					correct.getChoiceNo(),
+					solve.isAnswerCorrect(),
+					solve.getSolvedAt()
+				);
 
-		SolvedQuizResponse solvedQuiz = SolvedQuizResponse.of(
-			quiz.getQuizId(),
-			contentId,
-			quiz.getQuestion(),      // Quiz 엔티티 필드명 반영
-			choices,
-			solve.getSelectedNo(),
-			correct.getChoiceNo(),
-			solve.isAnswerCorrect(),
-			solve.getSolvedAt()
-		);
-
-		return ReadContentDetailResponse.of(contentDetail, solvedQuiz);
+				return ReadContentDetailResponse.of(contentDetail, solvedQuiz);
+			})
+			.orElseGet(() -> {
+				return ReadContentDetailResponse.of(contentDetail, null);
+			});
 	}
 
 	//컨텐츠 제목 기반 검색

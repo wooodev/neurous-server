@@ -17,13 +17,11 @@ import com.example.server.global.exception.dto.SuccessResponse;
 import com.example.server.global.exception.message.SuccessMessage;
 import com.example.server.global.security.annotation.AuthenticatedApi;
 
-import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("/api/characters")
 @RequiredArgsConstructor
-@Tag(name = "Character", description = "캐릭터 및 마이페이지 관련 API")
 public class CharacterController implements CharacterControllerDocs {
 
 	private final CharacterService characterService;

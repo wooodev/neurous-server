@@ -8,6 +8,7 @@ import java.util.List;
 
 import com.example.server.domain.auth.dto.OAuthUserInfo;
 import com.example.server.domain.auth.enums.OAuthProvider;
+import com.example.server.domain.content.entity.vo.ContentLevel;
 import com.example.server.domain.user.entity.vo.CharacterLevel;
 import com.example.server.domain.user.entity.vo.Level;
 import com.example.server.domain.user.entity.vo.Priority;
@@ -291,6 +292,22 @@ public class User extends BaseTimeEntity {
 			this.attendanceCount = 1;
 		}
 		this.lastLoginAt = todayLoginDateTime;
+	}
+
+	// User.java 내부 추가
+
+	/**
+	 * 유저의 현재 숙련도(Level)를 퀴즈 조회를 위한 ContentLevel로 변환합니다.
+	 */
+	public ContentLevel getContentLevel() {
+		if (this.level == null)
+			return ContentLevel.BEGINNER;
+		
+		try {
+			return ContentLevel.valueOf(this.level.name());
+		} catch (IllegalArgumentException e) {
+			return ContentLevel.BEGINNER; // 매핑 실패 시 기본값
+		}
 	}
 
 }

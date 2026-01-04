@@ -16,7 +16,7 @@ public record LevelStandardInformation(
 		}
 		return new LevelStandardInformation(
 			characterData.getCharacterLevel(),
-			characterData.getCharacterLevel(),
+			characterData.getCharacterName(),
 			characterData.getCharacterImageUrl(),
 			characterData.getExp(),
 			message

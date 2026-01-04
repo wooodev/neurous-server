@@ -52,24 +52,16 @@ public class QuizService {
 	private final ReadContentRepository readContentRepository;
 	private final RewardHistoryRepository rewardHistoryRepository;
 	private final StorageConfig storageConfig;
-
 	private final RedisUtil redisUtil;
 
 	/**
 	 * 퀴즈 문제지 출제
 	 */
 	public QuizQuestionResponse getQuiz(Long userId, Long contentId) {
+		User user = userRepository.findById(userId)
+			.orElseThrow(() -> new NotFoundException(ErrorMessage.USER_NOT_FOUND));
 
-		ContentLevel quizDiff = userRepository.findLevelByUserId(userId)
-			.map(levelObj -> {
-				try {
-					// 객체를 문자열로 바꾼 뒤 ContentLevel 열거형으로 매핑
-					return ContentLevel.valueOf(levelObj.toString());
-				} catch (Exception e) {
-					return ContentLevel.BEGINNER; // 매핑 실패 시 기본값
-				}
-			})
-			.orElse(ContentLevel.BEGINNER);
+		ContentLevel quizDiff = user.getContentLevel();
 
 		Quiz quiz = quizRepository.findQuiz(contentId, quizDiff)
 			.orElseThrow(() -> new NotFoundException(ErrorMessage.QUIZ_NOT_FOUND_FOR_CONTENT_LEVEL));
@@ -79,22 +71,22 @@ public class QuizService {
 			.map(QuizChoiceResponse::from)
 			.toList();
 
-		QuizQuestionResponse response = QuizQuestionResponse.of(quiz, choices);
-
-		return response;
+		return QuizQuestionResponse.of(quiz, choices);
 	}
 
 	/**
-	 * 퀴즈 정답 검증
+	 * 퀴즈 정답 검증 및 보상 지급
 	 */
 	@Transactional
 	public QuizSubmitResponse submit(Long userId, QuizSubmitRequest request) {
-
+		// 읽기 기록 확인
 		ReadContent readContent = checkReadContentAndFindReadContentById(userId, request.getReadContentId());
 
+		// 퀴즈 존재 확인
 		Quiz quiz = quizRepository.findById(request.getQuizId())
 			.orElseThrow(() -> new NotFoundException(ErrorMessage.QUIZ_NOT_FOUND));
 
+		// 사용자가 선택한 보기가 유효한지 확인
 		QuizChoice selected = quizChoiceRepository.findByQuiz_QuizIdAndChoiceNo(request.getQuizId(),
 				request.getSelectedNo())
 			.orElseThrow(() -> new BadRequestException(ErrorMessage.QUIZ_INVALID_CHOICE));
@@ -102,25 +94,24 @@ public class QuizService {
 		boolean isAnswerCorrect = selected.isCorrect();
 		User user = readContent.getUser();
 
-		CalculatePointAndExp calculatePointAndExp = calculateEarnedPointAndExp(isAnswerCorrect, user);
-
 		quizSolveRepository.save(QuizSolve.of(
 			user, readContent, quiz.getQuizId(), request.getSelectedNo(), isAnswerCorrect, LocalDateTime.now()
 		));
 
 		redisUtil.incrementMissionCount(userId, MissionType.QUIZ_SOLVE);
 
+		CalculatePointAndExp calculatePointAndExp = calculateEarnedPointAndExp(isAnswerCorrect, user);
+
 		QuizChoice correct = quizChoiceRepository.findByQuiz_QuizIdAndIsCorrectTrue(request.getQuizId())
 			.orElseThrow(() -> new NeurousException(ErrorMessage.QUIZ_CORRECT_ANSWER_NOT_CONFIGURED));
 
-		QuizResultResponse quizResultResponse =
-			QuizResultResponse.builder()
-				.quizId(request.getQuizId())
-				.selectedNo(request.getSelectedNo())
-				.isAnswerCorrect(isAnswerCorrect)
-				.correctChoiceNo(correct.getChoiceNo())
-				.correctChoiceText(correct.getChoiceText())
-				.build();
+		QuizResultResponse quizResultResponse = QuizResultResponse.builder()
+			.quizId(request.getQuizId())
+			.selectedNo(request.getSelectedNo())
+			.isAnswerCorrect(isAnswerCorrect)
+			.correctChoiceNo(correct.getChoiceNo())
+			.correctChoiceText(correct.getChoiceText())
+			.build();
 
 		LevelUpInfo levelUpInfo = calculatePointAndExp.isLevelUp() ?
 			LevelUpInfo.of(
@@ -136,7 +127,6 @@ public class QuizService {
 			.build();
 	}
 
-	// 검증 로직
 	private ReadContent checkReadContentAndFindReadContentById(Long userId, Long readContentId) {
 		ReadContent readContent = readContentRepository.findByIdWithUser(readContentId)
 			.orElseThrow(() -> new NotFoundException(ErrorMessage.READ_RECORD_NOT_FOUND));
@@ -151,12 +141,12 @@ public class QuizService {
 		return readContent;
 	}
 
-	// 포인트 / 리워드 보상
 	private CalculatePointAndExp calculateEarnedPointAndExp(boolean isAnswerCorrect, User user) {
 		int point = isAnswerCorrect ? PointExperienceProvisionInformation.CORRECT_ANSWER_POINT
 			: PointExperienceProvisionInformation.WRONG_ANSWER_POINT;
 		int exp = isAnswerCorrect ? PointExperienceProvisionInformation.CORRECT_ANSWER_EXPERIENCE
 			: PointExperienceProvisionInformation.WRONG_ANSWER_EXPERIENCE;
+
 		HistoryMessage message = isAnswerCorrect ? HistoryMessage.QUIZ_ANSWERS : HistoryMessage.QUIZ_CHALLENGE;
 
 		rewardHistoryRepository.save(RewardHistory.create(user, point, exp, message));
@@ -165,5 +155,4 @@ public class QuizService {
 
 		return CalculatePointAndExp.of(new RewardResponse(point, exp), isLevelUp);
 	}
-
 }

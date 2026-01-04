@@ -49,4 +49,5 @@ public interface UserRepository extends JpaRepository<User, Long> {
 		""")
 	List<UserInterest> findAllInterestsByUserId(@Param("userId") Long userId);
 
+	List<User> findByNotificationStatusTrue();
 }
