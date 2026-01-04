@@ -35,3 +35,21 @@ CREATE TABLE user_interest
     priority       VARCHAR(20), -- Priority Enum 값
     FOREIGN KEY (user_id) REFERENCES users (user_id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- 3. Content 테이블 생성
+CREATE TABLE content
+(
+    content_id       BIGINT AUTO_INCREMENT PRIMARY KEY,
+    title            VARCHAR(100) NOT NULL,
+    content_body     TEXT         NOT NULL,
+    content_date     DATETIME(6) NOT NULL,
+    content_category VARCHAR(50)  NOT NULL,
+    content_level    VARCHAR(50)  NOT NULL,
+    image_url        VARCHAR(500),
+    batch_time       DATETIME(6) NOT NULL,
+    hits             INT          NOT NULL DEFAULT 0,
+    -- BaseTimeEntity 관련 공통 컬럼
+    deleted          TINYINT(1) NOT NULL DEFAULT 0,
+    created_at       DATETIME(6),
+    updated_at       DATETIME(6)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
