@@ -1,6 +1,8 @@
 package com.example.server.domain.user.service;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -8,7 +10,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
+import com.example.server.domain.user.controller.dto.response.NotificationResponse;
+import com.example.server.domain.user.entity.Notification;
 import com.example.server.domain.user.entity.User;
+import com.example.server.domain.user.repository.NotificationRepository;
 import com.example.server.domain.user.repository.UserRepository;
 import com.example.server.global.exception.message.ErrorMessage;
 import com.example.server.global.exception.model.NotFoundException;
@@ -22,7 +27,7 @@ import lombok.extern.slf4j.Slf4j;
 public class NotificationService {
 
 	private final UserRepository userRepository;
-	// 사용자 ID별 SSE 연결 관리
+	private final NotificationRepository notificationRepository;
 	private final Map<Long, SseEmitter> emitters = new ConcurrentHashMap<>();
 
 	@Transactional
@@ -32,50 +37,68 @@ public class NotificationService {
 		return user.isNotificationStatus();
 	}
 
-	// 알림 구독
-	public SseEmitter subscribe(Long userId) {
+	// 1. 알림 리스트 조회 (최대 7일전까지)
+	@Transactional(readOnly = true)
+	public List<NotificationResponse> getMyNotifications(Long userId) {
+		LocalDateTime sevenDaysAgo = LocalDateTime.now().minusDays(7);
+		return notificationRepository.findRecentNotifications(userId, sevenDaysAgo)
+			.stream()
+			.map(NotificationResponse::from)
+			.toList();
+	}
 
-		// 60분간 연결 유지
+	@Transactional
+	public void createAndSendNotification(Long userId, String title, String content) {
+		User user = findByUserId(userId);
+
+		if (user.isNotificationStatus()) {
+			// DB 저장
+			Notification notification = Notification.builder()
+				.userId(userId)
+				.title(title)
+				.content(content)
+				.build();
+			notificationRepository.save(notification);
+
+			// 실시간 SSE 전송
+			sendToClient(userId, "NOTIFICATION", NotificationResponse.from(notification));
+		}
+	}
+
+	@Transactional
+	public void readNotification(Long userId, Long notificationId) {
+		Notification notification = notificationRepository.findByIdAndUserId(notificationId, userId)
+			.orElseThrow(() -> new NotFoundException(ErrorMessage.NOTIFICATION_NOT_FOUND));
+
+		notification.markAsRead(); // Notification 엔티티에 정의한 isRead = true 메서드
+	}
+
+	// 알림 구독 (SSE)
+	public SseEmitter subscribe(Long userId) {
 		SseEmitter emitter = new SseEmitter(60 * 1000L * 60);
 		emitters.put(userId, emitter);
 
-		// 완료/타임아웃 시 맵에서 제거
 		emitter.onCompletion(() -> emitters.remove(userId));
 		emitter.onTimeout(() -> emitters.remove(userId));
 
-		// 첫 연결 시 더미 데이터 전송 (503 에러 방지)
-		sendToClient(userId, "connect", "connected_user_id: " + userId);
-
+		sendToClient(userId, "connect", "connected");
 		return emitter;
-	}
-
-	// 특정 사용자에게 알림 전송
-	public void sendNotification(Long userId, String eventName, Object data) {
-		User user = findByUserId(userId);
-		// 유저가 존재하고, 알림 설정(notificationStatus)이 true인 경우에만 전송
-		if (user != null && user.isNotificationStatus()) {
-			sendToClient(userId, eventName, data);
-		}
 	}
 
 	private void sendToClient(Long userId, String eventName, Object data) {
 		SseEmitter emitter = emitters.get(userId);
 		if (emitter != null) {
 			try {
-				emitter.send(SseEmitter.event()
-					.name(eventName)
-					.data(data));
+				emitter.send(SseEmitter.event().name(eventName).data(data));
 			} catch (IOException e) {
 				emitters.remove(userId);
-				log.error("SSE 연결 전송 실패 - 사용자 ID: {}", userId);
+				log.error("SSE 전송 실패로 연결을 제거합니다. userId: {}", userId);
 			}
 		}
 	}
 
-	public User findByUserId(Long userId) {
+	private User findByUserId(Long userId) {
 		return userRepository.findById(userId)
-			.orElseThrow(() -> new NotFoundException(ErrorMessage.USER_NOT_FOUND)
-			);
+			.orElseThrow(() -> new NotFoundException(ErrorMessage.USER_NOT_FOUND));
 	}
-
 }

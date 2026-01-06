@@ -18,9 +18,9 @@ public enum Priority {
 	public int getOrder() {
 		return order;
 	}
-	
+
 	public static Priority fromIndex(int index) {
-		if (index < 0 || index > values().length) {
+		if (index < 0 || index >= values().length) {
 			throw new BadRequestException(ErrorMessage.USER_INVALID_INTEREST_COUNT);
 		}
 		return values()[index];

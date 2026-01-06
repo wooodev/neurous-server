@@ -66,6 +66,7 @@ public enum ErrorMessage {
 
 	//메타데이터 캐싱 관련
 	CHARACTER_METADATA_NOT_FOUND(404, "META6001", "해당 캐릭터의 데이터가 없습니다"),
+	NOTIFICATION_NOT_FOUND(404, "NOT7001", "알림 정보를 찾을 수없습니다"),
 
 	// 서버 에러
 	INTERNAL_SERVER_ERROR(500, "INT5000", "서버 내부 오류가 발생했습니다.");

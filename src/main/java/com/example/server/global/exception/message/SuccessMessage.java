@@ -46,6 +46,10 @@ public enum SuccessMessage {
 	LOAD_SUCCESS_LEVEL_STANDARD(HttpStatus.OK.value(), "레벨 기준 정보를 성공적으로 불러왔습니다"),
 	LOAD_SUCCESS_REWARD_STANDARD(HttpStatus.OK.value(), "보상 기준 정보를 성공적으로 불러왔습니다"),
 	LOAD_SUCCESS_REWARD_HISTORY(HttpStatus.OK.value(), "포인트 / 경험치 내역을 성공적으로 불러왔습니다"),
+
+	GET_SUCCESS_NOTIFICATION_LIST(HttpStatus.OK.value(), "알림 정보를 성공적으로 불러왔습니다"),
+	UPDATE_SUCCESS_NOTIFICATION_READ(HttpStatus.OK.value(), " 알림 읽은 여부를 업데이트 하였습니다"),
+
 	//201
 	ACCESS_TOKEN_REISSUE_SUCCESS(HttpStatus.CREATED.value(), "액세스 토큰 재발급이 완료되었습니다.");
 
