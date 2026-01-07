@@ -7,7 +7,7 @@ import com.example.server.domain.user.entity.vo.UserField;
 import jakarta.validation.constraints.Size;
 
 public record UpdateInterestsRequest(
-	@Size(min = 3, max = 3, message = "관심분야는 반드시 3개여야 합니다.")
+	@Size(min = 1, max = 3, message = "관심분야는 1~3개를 선택합니다.")
 	List<UserField> interests
 ) {
 }
