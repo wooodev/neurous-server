@@ -2,7 +2,10 @@ package com.example.server.domain.mission.service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
+import com.example.server.domain.mission.entity.Mission;
+import com.example.server.domain.mission.entity.vo.MissionType;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,8 +27,10 @@ import com.example.server.global.redis.RedisUtil;
 
 import lombok.RequiredArgsConstructor;
 
+import static java.util.stream.Collectors.toSet;
+
 @Service
-@Transactional(readOnly = true)
+@Transactional
 @RequiredArgsConstructor
 public class MissionService {
 
@@ -37,6 +42,8 @@ public class MissionService {
 
 	public MissionResponse loadMissionPage(Long userId) {
 		User user = findByUserId(userId);
+
+		ensureMissionsExist(user);
 
 		// 유저 맞춤 콘텐츠 5개 추출
 		List<MissionContentResponse> contents = findMissionContent(userId);
@@ -99,4 +106,21 @@ public class MissionService {
 		return userRepository.findAllInterestsByUserId(userId);
 	}
 
+	private void ensureMissionsExist(User user) {
+		List<Mission> existing = missionRepository.findAllByUser(user);
+		Set<MissionType> existingTypes = existing.stream()
+				.map(Mission::getMissionType)
+				.collect(toSet());
+
+		List<Mission> toCreate = new ArrayList<>();
+		for (MissionType type : MissionType.values()) {
+			if (!existingTypes.contains(type)) {
+				toCreate.add(Mission.create(user, type, type.getDefaultGoalCount()));
+			}
+		}
+
+		if (!toCreate.isEmpty()) {
+			missionRepository.saveAll(toCreate);
+		}
+	}
 }

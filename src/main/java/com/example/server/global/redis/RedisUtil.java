@@ -8,6 +8,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 
@@ -23,7 +24,7 @@ import lombok.extern.slf4j.Slf4j;
 public class RedisUtil {
 
 	private final RedisTemplate<String, String> redisTemplate;
-	private final com.fasterxml.jackson.databind.ObjectMapper objectMapper;
+	private final ObjectMapper objectMapper;
 
 	//Redis 초기화
 	@PostConstruct

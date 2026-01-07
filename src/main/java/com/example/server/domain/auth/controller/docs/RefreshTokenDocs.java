@@ -17,7 +17,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 @Retention(RetentionPolicy.RUNTIME)
 @Operation(
 	summary = "Access Token 재발급",
-	description = "Refresh Token으로 Access Token 재발급"
+	description = "Refresh Token을 매개변수에 전달하여 Access Token 재발급"
 )
 @ApiErrorStandard
 @ApiResponse(
