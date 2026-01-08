@@ -138,6 +138,11 @@ public class User extends BaseTimeEntity {
 	}
 
 	public static User create(OAuthProvider provider, OAuthUserInfo oauthUserInfo) {
+		String name = oauthUserInfo.getName();
+		if (name == null || name.isBlank()) {
+			name = oauthUserInfo.generateFallbackName();
+		}
+
 		return User.builder()
 			.name(oauthUserInfo.getName())
 			.provider(provider)
