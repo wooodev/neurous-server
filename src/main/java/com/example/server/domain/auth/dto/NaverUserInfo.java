@@ -33,6 +33,8 @@ public class NaverUserInfo implements OAuthUserInfo {
 
 	@Override
 	public String getName() {
-		return response.name;
+		String name = (response != null) ? response.name : null;
+		if (hasValue(name)) return name;
+		return generateFallbackName();
 	}
 }
