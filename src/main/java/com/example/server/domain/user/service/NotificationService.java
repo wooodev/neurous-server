@@ -38,7 +38,7 @@ public class NotificationService {
 	}
 
 	// 1. 알림 리스트 조회 (최대 7일전까지)
-	@Transactional(readOnly = true)
+	@Transactional
 	public List<NotificationResponse> getMyNotifications(Long userId) {
 		LocalDateTime sevenDaysAgo = LocalDateTime.now().minusDays(7);
 		return notificationRepository.findRecentNotifications(userId, sevenDaysAgo)
