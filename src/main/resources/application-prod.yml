@@ -8,6 +8,8 @@ spring:
     redis:
       host: 127.0.0.1 #redis (배포)
       port: 6379
+  flyway:
+    enabled: false
 
   jpa:
     hibernate:
@@ -25,4 +27,8 @@ springdoc:
     enabled: true
     path: /swagger
 
-
+logging:
+  level:
+    org.hibernate.tool.schema: DEBUG
+    org.hibernate.SQL: DEBUG
+    org.hibernate.orm.jdbc.bind: TRACE
