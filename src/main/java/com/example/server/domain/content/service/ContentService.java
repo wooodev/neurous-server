@@ -80,27 +80,31 @@ public class ContentService {
 	private final RedisUtil redisUtil;
 	private final StorageConfig storageConfig;
 
-	public Map<ContentCategory, ExploreResponse> getExplore(Long userId){
+	public ExploreResponse getExplore(Long userId){
+
+		ContentLevel userLevel = getUserContentLevel(userId);
 
 		LocalDateTime now = LocalDateTime.now();
 
 		attendanceService.providedAttendanceRewardToday(now, userId);
 
-		ContentLevel userLevel = getUserContentLevel(userId);
+		List<Content> all = new ArrayList<>();
 
-		Map<ContentCategory, ExploreResponse> result = new EnumMap<>(ContentCategory.class);
-
-		for(ContentCategory category : ContentCategory.values()){
-			List<Content> contents = contentRepository.findByCategoryAndLevel(userLevel, category, PageRequest.of(0,10));
-
-			result.put(category, ExploreResponse.builder().contents(contents
-							.stream()
-							.map(c -> ContentResponse.from(c, redisUtil.getHits(c.getContentId())))
-							.toList())
-					.build());
+		for (ContentCategory category : ContentCategory.values()) {
+			List<Content> contents =
+					contentRepository.findByCategoryAndLevel(userLevel, category, PageRequest.of(0, 10));
+			all.addAll(contents);
 		}
 
-		return result;
+		List<ContentResponse> result = all.stream()
+				.sorted(Comparator.comparing(Content::getContentId).reversed())
+				.limit(10)
+				.map(c -> ContentResponse.from(c, redisUtil.getHits(c.getContentId())))
+				.toList();
+
+		return ExploreResponse.builder()
+				.contents(result)
+				.build();
 	}
 
 	public ExploreResponse getExploreByCategory(Long userId,  ContentCategory category) {
@@ -131,6 +135,24 @@ public class ContentService {
 		redisUtil.updateHits(contentId, userId);
 		return ContentDetailResponse.from(content, redisUtil.getHits(contentId));
 	}
+
+	// 타이틀로 컨텐츠 검색
+	@Transactional
+	public List<ContentResponse> search(Long userId, String keyword, int page) {
+		String k = (keyword == null) ? "" : keyword.trim();
+		if (k.isEmpty())
+			return List.of();
+
+		ContentLevel level = getUserContentLevel(userId);
+
+		List<Content> searchResults = contentRepository.searchByTitle(
+				level, k, PageRequest.of(page, 10));
+
+		return searchResults.stream()
+				.map(c -> ContentResponse.from(c, redisUtil.getHits(c.getContentId())))
+				.toList();
+	}
+
 
 	// 읽은 글 상세
 	public ReadContentDetailResponse getReadContentDetail(Long userId, Long contentId) {
@@ -167,42 +189,6 @@ public class ContentService {
 			.orElseGet(() -> {
 				return ReadContentDetailResponse.of(contentDetail, null);
 			});
-	}
-
-	//컨텐츠 제목 기반 검색
-	@Transactional
-	public List<ContentResponse> search(Long userId, String keyword, int page) {
-		String k = (keyword == null) ? "" : keyword.trim();
-		if (k.isEmpty())
-			return List.of();
-
-		ContentLevel level = getUserContentLevel(userId);
-
-		List<Content> searchResults = contentRepository.searchByTitle(
-			level, k, PageRequest.of(page, 10));
-
-		if (page == 0 && !searchResults.isEmpty()) {
-			saveRecentSearch(userId, k);
-		}
-
-		return searchResults.stream()
-			.map(c -> ContentResponse.from(c, redisUtil.getHits(c.getContentId())))
-			.toList();
-	}
-
-	//최근 검색어 저장 로직
-	private void saveRecentSearch(Long userId, String keyword) {
-
-		redisUtil.zAdd(RedisKey.RECENT_SEARCH, userId, keyword, (double)System.currentTimeMillis());
-		redisUtil.zRemRangeByRank(RedisKey.RECENT_SEARCH, userId, 0, -11);
-	}
-
-	//최근 검색어 목록 조회 (DTO 변환 포함)
-	public List<RecentSearchResponse> getRecentSearches(Long userId) {
-		// 3줄 이내 노출을 위한 상위 10개 조회 및 DTO 변환
-		return redisUtil.zRevRange(RedisKey.RECENT_SEARCH, userId, 0, 9).stream()
-			.map(RecentSearchResponse::from)
-			.toList();
 	}
 
 	//컨텐츠 읽기 권한 확인

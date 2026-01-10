@@ -29,7 +29,7 @@ import jakarta.validation.Valid;
 public interface ContentControllerDocs {
 
 	@GetExploreDocs
-	SuccessResponse<Map<ContentCategory, ExploreResponse>> getExploreContent(
+	SuccessResponse<ExploreResponse> getExploreContent(
 		@CurrentUserId Long userId
 	);
 
@@ -56,11 +56,6 @@ public interface ContentControllerDocs {
 		@CurrentUserId Long userId,
 		@RequestParam String keyword,
 		@RequestParam(defaultValue = "0") int page
-	);
-
-	@GetRecentSearchDocs
-	SuccessResponse<List<RecentSearchResponse>> getRecentSearches(
-		@CurrentUserId Long userId
 	);
 
 	@CheckContentAccessDocs

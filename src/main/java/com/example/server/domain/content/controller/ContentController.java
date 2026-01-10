@@ -42,7 +42,7 @@ public class ContentController implements ContentControllerDocs {
 
 	@AuthenticatedApi(reason = "사용자의 학습 레벨에 맞는 컨텐츠 탐색을 위해 로그인 필요")
 	@GetMapping("/explore")
-	public SuccessResponse<Map<ContentCategory, ExploreResponse>> getExploreContent(
+	public SuccessResponse<ExploreResponse> getExploreContent(
 		@CurrentUserId Long userId
 	) {
 		return SuccessResponse.of(
@@ -97,17 +97,6 @@ public class ContentController implements ContentControllerDocs {
 		return SuccessResponse.of(
 			SuccessMessage.SEARCH_CONTENT_SUCCESS,
 			contentService.search(userId, keyword, page)
-		);
-	}
-
-	@AuthenticatedApi(reason = "최근 검색어 조회를 위해 로그인이 필요합니다")
-	@GetMapping("/search/recent")
-	public SuccessResponse<List<RecentSearchResponse>> getRecentSearches(
-		@CurrentUserId Long userId
-	) {
-		return SuccessResponse.of(
-			SuccessMessage.LOAD_RECENT_SEARCH_SUCCESS,
-			contentService.getRecentSearches(userId)
 		);
 	}
 
