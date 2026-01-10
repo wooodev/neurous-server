@@ -7,7 +7,6 @@ import com.example.server.domain.content.entity.Content;
 import lombok.Builder;
 import lombok.Getter;
 
-//탐색 응답 데이터
 @Getter
 @Builder
 public class ContentResponse {
@@ -17,7 +16,7 @@ public class ContentResponse {
 	private String imgUrl;
 	private int hits;
 	private int readingTime;
-	private LocalDate publishedDate; // 년/월/일 추가
+	private LocalDate publishedDate;
 
 	public static ContentResponse from(Content content, int redisHits) {
 		int calculatedTime = (int)Math.ceil(content.getContent().length() / 500.0);

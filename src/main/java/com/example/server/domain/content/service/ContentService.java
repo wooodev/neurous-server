@@ -82,14 +82,6 @@ public class ContentService {
 
 	public Map<ContentCategory, ExploreResponse> getExplore(Long userId){
 
-		LocalDateTime now = LocalDateTime.now();
-
-		try {
-			attendanceService.providedAttendanceRewardToday(now, userId);
-		} catch (Exception e) {
-			log.warn("[attendance] skip reward because write failed. userId={}", userId, e);
-		}
-
 		ContentLevel userLevel = getUserContentLevel(userId);
 
 		Map<ContentCategory, ExploreResponse> result = new EnumMap<>(ContentCategory.class);
