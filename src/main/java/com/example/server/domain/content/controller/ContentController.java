@@ -100,17 +100,6 @@ public class ContentController implements ContentControllerDocs {
 		);
 	}
 
-	@AuthenticatedApi(reason = "최근 검색어 조회를 위해 로그인이 필요합니다")
-	@GetMapping("/search/recent")
-	public SuccessResponse<List<RecentSearchResponse>> getRecentSearches(
-		@CurrentUserId Long userId
-	) {
-		return SuccessResponse.of(
-			SuccessMessage.LOAD_RECENT_SEARCH_SUCCESS,
-			contentService.getRecentSearches(userId)
-		);
-	}
-
 	@AuthenticatedApi(reason = "컨텐츠 접근 권한 확인을 위해 로그인이 필요합니다")
 	@GetMapping("/{contentId}/access")
 	public SuccessResponse<ContentAccessResponse> checkContentAccess(

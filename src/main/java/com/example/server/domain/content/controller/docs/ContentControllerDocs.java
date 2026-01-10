@@ -58,11 +58,6 @@ public interface ContentControllerDocs {
 		@RequestParam(defaultValue = "0") int page
 	);
 
-	@GetRecentSearchDocs
-	SuccessResponse<List<RecentSearchResponse>> getRecentSearches(
-		@CurrentUserId Long userId
-	);
-
 	@CheckContentAccessDocs
 	SuccessResponse<ContentAccessResponse> checkContentAccess(
 		@CurrentUserId Long userId,

@@ -16,6 +16,30 @@ import com.example.server.domain.content.entity.vo.ContentLevel;
 @Repository
 public interface ContentRepository extends JpaRepository<Content, Long> {
 
+	@Query("""
+		SELECT c FROM Content c
+		WHERE c.contentLevel = :level
+		  AND c.contentCategory = :category
+		ORDER BY c.batchTime DESC, c.contentId DESC
+	""")
+	List<Content> findByCategoryAndLevel(
+			@Param("level") ContentLevel level,
+			@Param("category") ContentCategory category,
+			Pageable pageable
+	);
+
+	@Query("""
+		    SELECT c FROM Content c
+		    WHERE c.contentLevel = :level
+		      AND c.title LIKE %:keyword%
+		    ORDER BY c.contentId DESC
+		""")
+	List<Content> searchByTitle(
+			@Param("level") ContentLevel level,
+			@Param("keyword") String keyword,
+			Pageable pageable
+	);
+
 	//batchTime 조회 * 최신
 	@Query(" SELECT MAX(c.batchTime) FROM Content c")
 	LocalDateTime findLatestBatchTime();
@@ -35,29 +59,6 @@ public interface ContentRepository extends JpaRepository<Content, Long> {
 		Pageable pageable
 	);
 
-	@Query("""
-		    SELECT c FROM Content c
-		    WHERE c.contentLevel = :level
-		      AND c.title LIKE %:keyword%
-		    ORDER BY c.contentId DESC
-		""")
-	List<Content> searchByTitle(
-		@Param("level") ContentLevel level,
-		@Param("keyword") String keyword,
-		Pageable pageable
-	);
-
 	boolean existsByNewsArticleIdAndContentLevel(Long newsArticleId, ContentLevel contentLevel);
 
-	@Query("""
-		SELECT c FROM Content c
-		WHERE c.contentLevel = :level
-		  AND c.contentCategory = :category
-		ORDER BY c.batchTime DESC, c.contentId DESC
-	""")
-	List<Content> findByCategoryAndLevel(
-			@Param("level") ContentLevel level,
-			@Param("category") ContentCategory category,
-			Pageable pageable
-	);
 }
