@@ -62,7 +62,7 @@ import lombok.RequiredArgsConstructor;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
+@Transactional
 public class ContentService {
 
 	private final ContentRepository contentRepository;

@@ -26,7 +26,7 @@ import com.example.server.global.exception.model.NotFoundException;
 import lombok.RequiredArgsConstructor;
 
 @Service
-@Transactional(readOnly = true)
+@Transactional
 @RequiredArgsConstructor
 public class AttendanceService {
 
