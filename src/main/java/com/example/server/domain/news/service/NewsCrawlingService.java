@@ -17,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.OffsetDateTime;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 
 @Slf4j
 @Service
@@ -102,7 +103,7 @@ public class NewsCrawlingService {
                     raw,
                     clean,
                     parsePubDate(item.pubDate()),
-                    OffsetDateTime.now()
+                    OffsetDateTime.now().truncatedTo(ChronoUnit.SECONDS)
             ));
             saved++;
 
@@ -125,9 +126,11 @@ public class NewsCrawlingService {
 
     private OffsetDateTime parsePubDate(String pubDate) {
         try {
-            return ZonedDateTime.parse(pubDate, NAVER_PUBDATE).toOffsetDateTime();
+            return ZonedDateTime.parse(pubDate, NAVER_PUBDATE)
+                    .toOffsetDateTime()
+                    .truncatedTo(ChronoUnit.SECONDS);
         } catch (Exception e) {
-            return OffsetDateTime.now();
+            return OffsetDateTime.now().truncatedTo(ChronoUnit.SECONDS);
         }
     }
 
