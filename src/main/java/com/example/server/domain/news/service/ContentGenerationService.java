@@ -120,7 +120,7 @@ public class ContentGenerationService {
                 .imageUrl(imageUrl)
                 .newsArticleId(a.getNewsArticleId())
                 .batchTime(LocalDateTime.now())
-                .contentDate(LocalDateTime.now())
+                .contentDate(a.getPublishedAt().toLocalDateTime())
                 .build();
 
         contentRepository.save(entity);
@@ -147,7 +147,7 @@ public class ContentGenerationService {
             
             정보 전달 목적의 학습용 읽기 자료입니다. 뉴스의 사실과 맥락을 이해하기 쉽게 풀어 설명하되, 의견·평가·의미 확장은 금지합니다.
             
-            불릿/번호 목록 금지. 제목 출력 금지.
+            불릿/번호 목록 금지. 제목 출력 금지. &quot; 문자 제거. 컨텐츠 내용에 "제목:, 본문:" 이런 데이터가 안들어가게 하기.
             """;
 
         ClovaChatCompletionRequest req = new ClovaChatCompletionRequest(
