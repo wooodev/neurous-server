@@ -1,5 +1,7 @@
 package com.example.server.global.exception;
 
+import com.example.server.global.exception.model.*;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -9,11 +11,6 @@ import org.springframework.web.method.annotation.MethodArgumentTypeMismatchExcep
 
 import com.example.server.global.exception.dto.ErrorResponse;
 import com.example.server.global.exception.message.ErrorMessage;
-import com.example.server.global.exception.model.BadRequestException;
-import com.example.server.global.exception.model.ConflictException;
-import com.example.server.global.exception.model.ForbiddenException;
-import com.example.server.global.exception.model.NotFoundException;
-import com.example.server.global.exception.model.UnauthorizedException;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -58,19 +55,40 @@ public class GlobalExceptionHandler {
 			.body(ErrorResponse.of(ErrorMessage.NS_ENUM_VALUE_BAD_REQUEST));
 	}
 
-	@ExceptionHandler(Exception.class)
-	public ResponseEntity<ErrorResponse> handleException(final Exception e) {
-		e.printStackTrace();
-		return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-			.body(ErrorResponse.of(ErrorMessage.INTERNAL_SERVER_ERROR));
-	}
-
 	//Enum 변환 실패 * PathVariable이나 QueryParam 시 발생하는 예외 처리
 	@ExceptionHandler(MethodArgumentTypeMismatchException.class)
 	public ResponseEntity<?> handleTypeMismatch(MethodArgumentTypeMismatchException e) {
 		log.error("MethodArgumentTypeMismatchException: {}", e.getMessage());
 		return ResponseEntity.status(HttpStatus.BAD_REQUEST)
 			.body(ErrorResponse.of(ErrorMessage.NS_ENUM_VALUE_BAD_REQUEST));
+	}
+
+	@ExceptionHandler(NeurousException.class)
+	public ResponseEntity<ErrorResponse> handleNeurous(NeurousException e, HttpServletRequest req) {
+
+		log.warn("[NeurousException] {} {} -> code={}, message={}",
+				req.getMethod(), req.getRequestURI(),
+				e.getErrorMessage().getCode(),
+				e.getMessage()
+		);
+
+		return ResponseEntity
+				.status(e.getErrorMessage().getStatus())
+				.body(ErrorResponse.of(
+						e.getErrorMessage().getStatus(),
+						e.getErrorMessage().getCode(),
+						e.getMessage()
+				));
+	}
+
+	@ExceptionHandler(Exception.class)
+	public ResponseEntity<ErrorResponse> handleException(Exception e, HttpServletRequest req) {
+
+		log.error("[UnhandledException] {} {}", req.getMethod(), req.getRequestURI(), e);
+
+		return ResponseEntity
+				.status(HttpStatus.INTERNAL_SERVER_ERROR)
+				.body(ErrorResponse.of(ErrorMessage.INTERNAL_SERVER_ERROR));
 	}
 
 }

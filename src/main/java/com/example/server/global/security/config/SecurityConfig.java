@@ -2,6 +2,8 @@ package com.example.server.global.security.config;
 
 import java.util.List;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
@@ -20,6 +22,7 @@ import com.example.server.global.security.jwt.JwtAuthenticationFilter;
 
 import lombok.RequiredArgsConstructor;
 
+@Slf4j
 @RequiredArgsConstructor
 @Configuration
 @EnableWebSecurity
@@ -27,6 +30,7 @@ import lombok.RequiredArgsConstructor;
 public class SecurityConfig {
 
 	private final JwtAuthenticationFilter jwtAuthenticationFilter;
+	private final ObjectMapper objectMapper = new ObjectMapper();
 
 	@Bean
 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -40,6 +44,16 @@ public class SecurityConfig {
 			)
 			.exceptionHandling(exception -> exception
 				.authenticationEntryPoint((request, response, authException) -> {
+
+					log.warn("[AUTH1008] 인증 필요: method={} uri={} ip={} ua={} authHeaderPresent={} msg={}",
+							request.getMethod(),
+							request.getRequestURI(),
+							request.getRemoteAddr(),
+							request.getHeader("User-Agent"),
+							request.getHeader("Authorization") != null,
+							authException != null ? authException.getMessage() : null
+					);
+
 					ErrorResponse errorResponse = ErrorResponse.of(ErrorMessage.NEED_CERTIFICATION);
 					response.setContentType("application/json;charset=UTF-8");
 					response.setStatus(401);
