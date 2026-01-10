@@ -80,27 +80,31 @@ public class ContentService {
 	private final RedisUtil redisUtil;
 	private final StorageConfig storageConfig;
 
-	public Map<ContentCategory, ExploreResponse> getExplore(Long userId){
+	public ExploreResponse getExplore(Long userId){
+
+		ContentLevel userLevel = getUserContentLevel(userId);
 
 		LocalDateTime now = LocalDateTime.now();
 
 		attendanceService.providedAttendanceRewardToday(now, userId);
 
-		ContentLevel userLevel = getUserContentLevel(userId);
+		List<Content> all = new ArrayList<>();
 
-		Map<ContentCategory, ExploreResponse> result = new EnumMap<>(ContentCategory.class);
-
-		for(ContentCategory category : ContentCategory.values()){
-			List<Content> contents = contentRepository.findByCategoryAndLevel(userLevel, category, PageRequest.of(0,10));
-
-			result.put(category, ExploreResponse.builder().contents(contents
-							.stream()
-							.map(c -> ContentResponse.from(c, redisUtil.getHits(c.getContentId())))
-							.toList())
-					.build());
+		for (ContentCategory category : ContentCategory.values()) {
+			List<Content> contents =
+					contentRepository.findByCategoryAndLevel(userLevel, category, PageRequest.of(0, 10));
+			all.addAll(contents);
 		}
 
-		return result;
+		List<ContentResponse> result = all.stream()
+				.sorted(Comparator.comparing(Content::getContentId).reversed())
+				.limit(10)
+				.map(c -> ContentResponse.from(c, redisUtil.getHits(c.getContentId())))
+				.toList();
+
+		return ExploreResponse.builder()
+				.contents(result)
+				.build();
 	}
 
 	public ExploreResponse getExploreByCategory(Long userId,  ContentCategory category) {

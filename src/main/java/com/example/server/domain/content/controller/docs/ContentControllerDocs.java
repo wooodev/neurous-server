@@ -29,7 +29,7 @@ import jakarta.validation.Valid;
 public interface ContentControllerDocs {
 
 	@GetExploreDocs
-	SuccessResponse<Map<ContentCategory, ExploreResponse>> getExploreContent(
+	SuccessResponse<ExploreResponse> getExploreContent(
 		@CurrentUserId Long userId
 	);
 

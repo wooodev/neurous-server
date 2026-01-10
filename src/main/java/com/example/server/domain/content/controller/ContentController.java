@@ -42,7 +42,7 @@ public class ContentController implements ContentControllerDocs {
 
 	@AuthenticatedApi(reason = "사용자의 학습 레벨에 맞는 컨텐츠 탐색을 위해 로그인 필요")
 	@GetMapping("/explore")
-	public SuccessResponse<Map<ContentCategory, ExploreResponse>> getExploreContent(
+	public SuccessResponse<ExploreResponse> getExploreContent(
 		@CurrentUserId Long userId
 	) {
 		return SuccessResponse.of(
