@@ -8,9 +8,6 @@ spring:
     redis:
       host: ${REDIS_HOST:localhost}
       port: 6379
-  config:
-    import:
-      - optional:config/flyway.yml
 
 server:
   port: 8080
