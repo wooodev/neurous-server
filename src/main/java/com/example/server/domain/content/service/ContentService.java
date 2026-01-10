@@ -1,10 +1,7 @@
 package com.example.server.domain.content.service;
 
 import java.time.LocalDateTime;
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -74,74 +71,45 @@ public class ContentService {
 	private final QuizSolveRepository quizSolveRepository;
 	private final QuizRepository quizRepository;
 	private final QuizChoiceRepository quizChoiceRepository;
-
 	private final RewardHistoryRepository rewardHistoryRepository;
+
+	private final AttendanceService attendanceService;
 
 	private final RedisUtil redisUtil;
 	private final StorageConfig storageConfig;
 
-	private final AttendanceService attendanceService;
-
-	/**
-	 * 컨텐츠 조회 / 검색
-	 */
-	//<전체 탐색>
-	@Transactional
-	public Map<ContentCategory, ExploreResponse> getExplore(Long userId) {
+	public Map<ContentCategory, ExploreResponse> getExplore(Long userId){
 
 		LocalDateTime now = LocalDateTime.now();
-
 		attendanceService.providedAttendanceRewardToday(now, userId);
-
 		ContentLevel userLevel = getUserContentLevel(userId);
-		LocalDateTime latestBatchTime = contentRepository.findLatestBatchTime();
 
-		if (latestBatchTime == null)
-			return Collections.emptyMap();
+		Map<ContentCategory, ExploreResponse> result = new EnumMap<>(ContentCategory.class);
 
-		// 루프 밖에서 공통 값 계산
-		LocalDateTime nextBatchTime = latestBatchTime.plusHours(6);
-		boolean isJustUpdated = latestBatchTime.isAfter(LocalDateTime.now().minusMinutes(30));
+		for(ContentCategory category : ContentCategory.values()){
+			List<Content> contents = contentRepository.findByCategoryAndLevel(userLevel, category, PageRequest.of(0,10));
 
-		Map<ContentCategory, ExploreResponse> result = new LinkedHashMap<>();
-
-		for (ContentCategory category : ContentCategory.values()) {
-			List<Content> contents = contentRepository.findLatestBatchContents(
-				userLevel, category, latestBatchTime, PageRequest.of(0, 10)
-			);
-
-			result.put(category, ExploreResponse.builder()
-				.contents(
-					contents.stream().map(c -> ContentResponse.from(c, redisUtil.getHits(c.getContentId()))).toList())
-				.nextBatchTime(nextBatchTime)
-				.isUpdatedContent(isJustUpdated)
-				.build());
+			result.put(category, ExploreResponse.builder().contents(contents
+							.stream()
+							.map(c -> ContentResponse.from(c, redisUtil.getHits(c.getContentId())))
+							.toList())
+					.build());
 		}
+
 		return result;
 	}
 
-	//사용자가 컨텐츠 * 카테고리 칩 눌렀을때 해당 카테고리의 데이터만 반환
-	public ExploreResponse getExploreByCategory(Long userId, ContentCategory category) {
+	public ExploreResponse getExploreByCategory(Long userId,  ContentCategory category) {
+
 		ContentLevel userLevel = getUserContentLevel(userId);
-		LocalDateTime latestBatchTime = contentRepository.findLatestBatchTime();
-
-		//데이터가없으면 빈응답
-		if (latestBatchTime == null) {
-			return ExploreResponse.builder()
-				.contents(Collections.emptyList())
-				.nextBatchTime(null)
-				.isUpdatedContent(false)
-				.build();
-		}
-		List<Content> contents = contentRepository.findLatestBatchContents(
-			userLevel, category, latestBatchTime, PageRequest.of(0, 10)
+		List<Content> contents = contentRepository.findByCategoryAndLevel(
+				userLevel, category, PageRequest.of(0, 10)
 		);
-
 		return ExploreResponse.builder()
-			.contents(contents.stream().map(c -> ContentResponse.from(c, redisUtil.getHits(c.getContentId()))).toList())
-			.nextBatchTime(latestBatchTime.plusHours(6))
-			.isUpdatedContent(latestBatchTime.isAfter(LocalDateTime.now().minusMinutes(30)))
-			.build();
+				.contents(contents.stream()
+						.map(c -> ContentResponse.from(c, redisUtil.getHits(c.getContentId())))
+						.toList())
+				.build();
 	}
 
 	// 컨텐츠 상세 정보 조회 + 조회수

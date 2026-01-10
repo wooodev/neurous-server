@@ -47,18 +47,17 @@ public interface ContentRepository extends JpaRepository<Content, Long> {
 		Pageable pageable
 	);
 
-	@Query("""
-		    SELECT c FROM Content c
-		    WHERE c.contentLevel = :level
-		      AND c.contentCategory = :category
-		    ORDER BY c.contentId DESC
-		""")
-	List<Content> findByCategoryAndLevel(
-		@Param("level") ContentLevel level,
-		@Param("category") ContentCategory category,
-		Pageable pageable
-	);
-
 	boolean existsByNewsArticleIdAndContentLevel(Long newsArticleId, ContentLevel contentLevel);
 
+	@Query("""
+		SELECT c FROM Content c
+		WHERE c.contentLevel = :level
+		  AND c.contentCategory = :category
+		ORDER BY c.batchTime DESC, c.contentId DESC
+	""")
+	List<Content> findByCategoryAndLevel(
+			@Param("level") ContentLevel level,
+			@Param("category") ContentCategory category,
+			Pageable pageable
+	);
 }
