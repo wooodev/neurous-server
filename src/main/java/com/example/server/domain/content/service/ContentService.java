@@ -3,6 +3,7 @@ package com.example.server.domain.content.service;
 import java.time.LocalDateTime;
 import java.util.*;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -58,6 +59,7 @@ import com.example.server.global.storage.StorageConfig;
 
 import lombok.RequiredArgsConstructor;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -81,7 +83,13 @@ public class ContentService {
 	public Map<ContentCategory, ExploreResponse> getExplore(Long userId){
 
 		LocalDateTime now = LocalDateTime.now();
-		attendanceService.providedAttendanceRewardToday(now, userId);
+
+		try {
+			attendanceService.providedAttendanceRewardToday(now, userId);
+		} catch (Exception e) {
+			log.warn("[attendance] skip reward because write failed. userId={}", userId, e);
+		}
+
 		ContentLevel userLevel = getUserContentLevel(userId);
 
 		Map<ContentCategory, ExploreResponse> result = new EnumMap<>(ContentCategory.class);
