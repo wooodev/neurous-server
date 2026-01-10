@@ -82,6 +82,10 @@ public class ContentService {
 
 	public Map<ContentCategory, ExploreResponse> getExplore(Long userId){
 
+		LocalDateTime now = LocalDateTime.now();
+
+		attendanceService.providedAttendanceRewardToday(now, userId);
+
 		ContentLevel userLevel = getUserContentLevel(userId);
 
 		Map<ContentCategory, ExploreResponse> result = new EnumMap<>(ContentCategory.class);
