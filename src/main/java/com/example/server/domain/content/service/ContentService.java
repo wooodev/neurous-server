@@ -80,7 +80,7 @@ public class ContentService {
 	private final RedisUtil redisUtil;
 	private final StorageConfig storageConfig;
 
-	public ExploreResponse getExplore(Long userId){
+	public ExploreResponse getExplore(Long userId, int page, int size){
 
 		ContentLevel userLevel = getUserContentLevel(userId);
 
@@ -90,15 +90,17 @@ public class ContentService {
 
 		List<Content> all = new ArrayList<>();
 
-		for (ContentCategory category : ContentCategory.values()) {
+		int fetchSizePerCategory = Math.max(10, (page + 1) * size);
+
+		for (ContentCategory contentCategory : ContentCategory.values()) {
 			List<Content> contents =
-					contentRepository.findByCategoryAndLevel(userLevel, category, PageRequest.of(0, 10));
+					contentRepository.findByCategoryAndLevel(userLevel, contentCategory, PageRequest.of(0, fetchSizePerCategory));
 			all.addAll(contents);
 		}
 
 		List<ContentResponse> result = all.stream()
-				.sorted(Comparator.comparing(Content::getContentId).reversed())
-				.limit(10)
+				.skip((long) page * size)
+				.limit(size)
 				.map(c -> ContentResponse.from(c, redisUtil.getHits(c.getContentId())))
 				.toList();
 
@@ -107,16 +109,26 @@ public class ContentService {
 				.build();
 	}
 
-	public ExploreResponse getExploreByCategory(Long userId,  ContentCategory category) {
+	public ExploreResponse getExploreByCategory(Long userId, ContentCategory category, int page, int size) {
 
 		ContentLevel userLevel = getUserContentLevel(userId);
+
+		int fetchSize = Math.max(10, (page + 1) * size);
+
 		List<Content> contents = contentRepository.findByCategoryAndLevel(
-				userLevel, category, PageRequest.of(0, 10)
+				userLevel,
+				category,
+				PageRequest.of(0, fetchSize)
 		);
+
+		List<ContentResponse> result = contents.stream()
+				.skip((long) page * size)
+				.limit(size)
+				.map(c -> ContentResponse.from(c, redisUtil.getHits(c.getContentId())))
+				.toList();
+
 		return ExploreResponse.builder()
-				.contents(contents.stream()
-						.map(c -> ContentResponse.from(c, redisUtil.getHits(c.getContentId())))
-						.toList())
+				.contents(result)
 				.build();
 	}
 
@@ -234,11 +246,18 @@ public class ContentService {
 	public ReadStatusResponse updateReadStatus(Long userId, Long contentId,
 		UpdateReadStatusRequest updateReadStatusRequest, boolean isFromMission) {
 
-		ReadContent readContent = findReadContentById(userId, contentId);
 		User user = findUserById(userId);
 
+		Content content = findContentById(contentId);
+
+		ReadContent readContent = readContentRepository.findByUser_IdAndContent_ContentId(userId, contentId)
+				.orElseGet(() -> readContentRepository.save(ReadContent.of(user, content, 0L, false)));
+
+
 		if (readContent.isCompleted()) {
-			return ReadStatusResponse.builder().isCompleted(true).build();
+			return ReadStatusResponse.builder()
+					.isCompleted(true)
+					.build();
 		}
 
 		readContent.updateStatus(updateReadStatusRequest.staySeconds());

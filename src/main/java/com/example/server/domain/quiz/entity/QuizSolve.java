@@ -35,7 +35,7 @@ public class QuizSolve {
 	private User user;
 
 	@OneToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "read_content_id", nullable = false)
+	@JoinColumn(name = "read_content_id")
 	private ReadContent readContent;
 
 	@Column(name = "quiz_id", nullable = false)

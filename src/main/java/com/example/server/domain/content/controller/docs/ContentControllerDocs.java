@@ -30,13 +30,17 @@ public interface ContentControllerDocs {
 
 	@GetExploreDocs
 	SuccessResponse<ExploreResponse> getExploreContent(
-		@CurrentUserId Long userId
+		@CurrentUserId Long userId,
+		@RequestParam(defaultValue = "0") int page,
+		@RequestParam(defaultValue = "10") int size
 	);
 
 	@GetExploreContetsByCategoryDocs
 	SuccessResponse<ExploreResponse> getExploreContentByCategory(
 		@CurrentUserId Long userId,
-		@PathVariable ContentCategory category
+		@PathVariable ContentCategory category,
+		@RequestParam(defaultValue = "0") int page,
+		@RequestParam(defaultValue = "10") int size
 	);
 
 	@GetContentDetailDocs
