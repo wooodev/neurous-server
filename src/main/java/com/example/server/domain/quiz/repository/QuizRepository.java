@@ -26,4 +26,7 @@ public interface QuizRepository extends JpaRepository<Quiz, Long> {
         where q.content.contentId = :contentId
     """)
 	int findMaxQuizNumByContentId(@Param("contentId") Long contentId);
+
+	@Query("select q from Quiz q join fetch q.content where q.quizId = :quizId")
+	Optional<Quiz> findByIdWithContent(@Param("quizId") Long quizId);
 }
