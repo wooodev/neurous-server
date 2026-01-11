@@ -43,11 +43,13 @@ public class ContentController implements ContentControllerDocs {
 	@AuthenticatedApi(reason = "사용자의 학습 레벨에 맞는 컨텐츠 탐색을 위해 로그인 필요")
 	@GetMapping("/explore")
 	public SuccessResponse<ExploreResponse> getExploreContent(
-		@CurrentUserId Long userId
+		@CurrentUserId Long userId,
+		@RequestParam(defaultValue = "0") int page,
+		@RequestParam(defaultValue = "10") int size
 	) {
 		return SuccessResponse.of(
 			SuccessMessage.LOAD_CONTENT_EXPLORE_SUCCESS,
-			contentService.getExplore(userId)
+				contentService.getExplore(userId, page, size)
 		);
 	}
 
@@ -55,11 +57,13 @@ public class ContentController implements ContentControllerDocs {
 	@GetMapping("/explore/{category}")
 	public SuccessResponse<ExploreResponse> getExploreContentByCategory(
 		@CurrentUserId Long userId,
-		@PathVariable ContentCategory category
+		@PathVariable ContentCategory category,
+		@RequestParam(defaultValue = "0") int page,
+		@RequestParam(defaultValue = "10") int size
 	) {
 		return SuccessResponse.of(
 			SuccessMessage.LOAD_CONTENT_EXPLORE_BY_CATEGORY_SUCCESS,
-			contentService.getExploreByCategory(userId, category)
+			contentService.getExploreByCategory(userId, category, page, size)
 		);
 	}
 
