@@ -79,23 +79,38 @@ public class QuizService {
 	 */
 	@Transactional
 	public QuizSubmitResponse submit(Long userId, QuizSubmitRequest request) {
-		// 읽기 기록 확인
-		ReadContent readContent = checkReadContentAndFindReadContentById(userId, request.getReadContentId());
 
-		// 퀴즈 존재 확인
+		User user = userRepository.findById(userId)
+				.orElseThrow(() -> new NotFoundException(ErrorMessage.USER_NOT_FOUND));
+
 		Quiz quiz = quizRepository.findById(request.getQuizId())
-			.orElseThrow(() -> new NotFoundException(ErrorMessage.QUIZ_NOT_FOUND));
+				.orElseThrow(() -> new NotFoundException(ErrorMessage.QUIZ_NOT_FOUND));
 
-		// 사용자가 선택한 보기가 유효한지 확인
-		QuizChoice selected = quizChoiceRepository.findByQuiz_QuizIdAndChoiceNo(request.getQuizId(),
-				request.getSelectedNo())
-			.orElseThrow(() -> new BadRequestException(ErrorMessage.QUIZ_INVALID_CHOICE));
+		QuizChoice selected = quizChoiceRepository
+				.findByQuiz_QuizIdAndChoiceNo(request.getQuizId(), request.getSelectedNo())
+				.orElseThrow(() -> new BadRequestException(ErrorMessage.QUIZ_INVALID_CHOICE));
 
 		boolean isAnswerCorrect = selected.isCorrect();
-		User user = readContent.getUser();
+
+		ReadContent readContent = null;
+
+		if (request.getReadContentId() != null) {
+			readContent = readContentRepository.findById(request.getReadContentId())
+					.filter(rc -> rc.getUser().getId().equals(userId))
+					.orElse(null);
+
+			if (readContent != null && quizSolveRepository.existsByReadContent_ReadContentId(readContent.getReadContentId())) {
+				throw new ConflictException(ErrorMessage.QUIZ_ALREADY_SOLVED);
+			}
+		}
 
 		quizSolveRepository.save(QuizSolve.of(
-			user, readContent, quiz.getQuizId(), request.getSelectedNo(), isAnswerCorrect, LocalDateTime.now()
+				user,
+				readContent,
+				quiz.getQuizId(),
+				request.getSelectedNo(),
+				isAnswerCorrect,
+				LocalDateTime.now()
 		));
 
 		redisUtil.incrementMissionCount(userId, MissionType.QUIZ_SOLVE);
@@ -103,28 +118,29 @@ public class QuizService {
 		CalculatePointAndExp calculatePointAndExp = calculateEarnedPointAndExp(isAnswerCorrect, user);
 
 		QuizChoice correct = quizChoiceRepository.findByQuiz_QuizIdAndIsCorrectTrue(request.getQuizId())
-			.orElseThrow(() -> new NeurousException(ErrorMessage.QUIZ_CORRECT_ANSWER_NOT_CONFIGURED));
+				.orElseThrow(() -> new NeurousException(ErrorMessage.QUIZ_CORRECT_ANSWER_NOT_CONFIGURED));
 
 		QuizResultResponse quizResultResponse = QuizResultResponse.builder()
-			.quizId(request.getQuizId())
-			.selectedNo(request.getSelectedNo())
-			.isAnswerCorrect(isAnswerCorrect)
-			.correctChoiceNo(correct.getChoiceNo())
-			.correctChoiceText(correct.getChoiceText())
-			.build();
+				.quizId(request.getQuizId())
+				.selectedNo(request.getSelectedNo())
+				.isAnswerCorrect(isAnswerCorrect)
+				.correctChoiceNo(correct.getChoiceNo())
+				.correctChoiceText(correct.getChoiceText())
+				.build();
 
-		LevelUpInfo levelUpInfo = calculatePointAndExp.isLevelUp() ?
-			LevelUpInfo.of(
+		LevelUpInfo levelUpInfo = calculatePointAndExp.isLevelUp()
+				? LevelUpInfo.of(
 				storageConfig.getProfileUrl(user.getProfileImgFileName()),
 				user.getCharacterLevel().toString(),
 				user.getCharacterLevel().getCharacterName()
-			) : null;
+		)
+				: null;
 
 		return QuizSubmitResponse.builder()
-			.quizResultResponse(quizResultResponse)
-			.rewardResponse(calculatePointAndExp.rewardResponse())
-			.userLevelInformation(levelUpInfo)
-			.build();
+				.quizResultResponse(quizResultResponse)
+				.rewardResponse(calculatePointAndExp.rewardResponse())
+				.userLevelInformation(levelUpInfo)
+				.build();
 	}
 
 	private ReadContent checkReadContentAndFindReadContentById(Long userId, Long readContentId) {

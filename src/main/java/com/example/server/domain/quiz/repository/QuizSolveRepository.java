@@ -6,15 +6,12 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import com.example.server.domain.quiz.entity.QuizSolve;
-import com.example.server.domain.user.entity.User;
 
 @Repository
 public interface QuizSolveRepository extends JpaRepository<QuizSolve, Long> {
 
-	Optional<QuizSolve> findByUser_IdAndReadContent_Content_ContentId(Long userId, Long contentId);
-
-	//특정 읽기 기록에 대한 풀이 이력이 있는지 확인
 	boolean existsByReadContent_ReadContentId(Long readContentId);
 
-	Long user(User user);
+	Optional<QuizSolve> findByUser_IdAndReadContent_Content_ContentId(Long userId, Long contentId);
+
 }
