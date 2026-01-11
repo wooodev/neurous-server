@@ -98,7 +98,7 @@ public class QuizService {
 
 		boolean isAnswerCorrect = selected.isCorrect();
 
-		ReadContent readContent = getOrCreateReadContent(user, content, request.getReadContentId());
+		ReadContent readContent = getOrCreateReadContent(user, content);
 
 		if (quizSolveRepository.existsByUser_IdAndReadContent_Content_ContentId(userId, content.getContentId())) {
 			throw new ConflictException(ErrorMessage.QUIZ_ALREADY_SOLVED);
@@ -143,10 +143,11 @@ public class QuizService {
 				.build();
 	}
 
-	private ReadContent getOrCreateReadContent(User user, Content content, Long readContentId) {
+	private ReadContent getOrCreateReadContent(User user, Content content) {
 		return readContentRepository
 				.findTopByUser_IdAndContent_ContentIdOrderByReadAtDesc(user.getId(), content.getContentId())
-				.orElseGet(() -> readContentRepository.save(ReadContent.of(user, content, 0L, false)));}
+				.orElseGet(() -> readContentRepository.save(ReadContent.of(user, content, 0L, false)));
+	}
 
 	private CalculatePointAndExp calculateEarnedPointAndExp(boolean isAnswerCorrect, User user) {
 		int point = isAnswerCorrect ? PointExperienceProvisionInformation.CORRECT_ANSWER_POINT

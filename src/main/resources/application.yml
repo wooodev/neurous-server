@@ -8,6 +8,13 @@ spring:
     redis:
       host: ${REDIS_HOST:localhost}
       port: 6379
+  tomcat:
+    accesslog:
+      enabled: true
+      pattern: '%h %l %u %t "%r" %s %b %D'
+      directory: /tmp
+      prefix: access
+      suffix: .log
 
 server:
   port: 8080
