@@ -48,7 +48,7 @@ public class ContentController implements ContentControllerDocs {
 		@RequestParam(defaultValue = "10") int size
 	) {
 		return SuccessResponse.of(
-			SuccessMessage.LOAD_CONTENT_EXPLORE_SUCCESS,
+				SuccessMessage.LOAD_CONTENT_EXPLORE_SUCCESS,
 				contentService.getExplore(userId, page, size)
 		);
 	}
@@ -62,8 +62,8 @@ public class ContentController implements ContentControllerDocs {
 		@RequestParam(defaultValue = "10") int size
 	) {
 		return SuccessResponse.of(
-			SuccessMessage.LOAD_CONTENT_EXPLORE_BY_CATEGORY_SUCCESS,
-			contentService.getExploreByCategory(userId, category, page, size)
+				SuccessMessage.LOAD_CONTENT_EXPLORE_BY_CATEGORY_SUCCESS,
+				contentService.getExploreByCategory(userId, category, page, size)
 		);
 	}
 
@@ -74,8 +74,8 @@ public class ContentController implements ContentControllerDocs {
 		@PathVariable Long contentId
 	) {
 		return SuccessResponse.of(
-			SuccessMessage.LOAD_CONTENT_DETAIL_SUCCESS,
-			contentService.getContentDetailWithCount(userId, contentId)
+				SuccessMessage.LOAD_CONTENT_DETAIL_SUCCESS,
+				contentService.getContentDetailWithCount(userId, contentId)
 		);
 	}
 
@@ -86,8 +86,8 @@ public class ContentController implements ContentControllerDocs {
 		@PathVariable Long contentId
 	) {
 		return SuccessResponse.of(
-			SuccessMessage.LOAD_READ_CONTENT_DETAIL_SUCCESS,
-			contentService.getReadContentDetail(userId, contentId)
+				SuccessMessage.LOAD_READ_CONTENT_DETAIL_SUCCESS,
+				contentService.getReadContentDetail(userId, contentId)
 		);
 	}
 
@@ -99,8 +99,8 @@ public class ContentController implements ContentControllerDocs {
 		@RequestParam(defaultValue = "0") int page
 	) {
 		return SuccessResponse.of(
-			SuccessMessage.SEARCH_CONTENT_SUCCESS,
-			contentService.search(userId, keyword, page)
+				SuccessMessage.SEARCH_CONTENT_SUCCESS,
+				contentService.search(userId, keyword, page)
 		);
 	}
 
@@ -111,8 +111,8 @@ public class ContentController implements ContentControllerDocs {
 		@PathVariable Long contentId
 	) {
 		return SuccessResponse.of(
-			SuccessMessage.CHECK_CONTENT_ACCESS_SUCCESS,
-			contentService.checkContentReadAccess(userId, contentId)
+				SuccessMessage.CHECK_CONTENT_ACCESS_SUCCESS,
+				contentService.checkContentReadAccess(userId, contentId)
 		);
 	}
 
@@ -125,13 +125,13 @@ public class ContentController implements ContentControllerDocs {
 		@RequestParam(defaultValue = "false") boolean isFromMission
 	) {
 		return SuccessResponse.of(
-			SuccessMessage.UPDATE_READ_STATUS_SUCCESS,
-			contentService.updateReadStatus(
-				userId,
-				contentId,
-				request,
-				isFromMission
-			)
+				SuccessMessage.UPDATE_READ_STATUS_SUCCESS,
+				contentService.updateReadStatus(
+					userId,
+					contentId,
+					request,
+					isFromMission
+				)
 		);
 	}
 

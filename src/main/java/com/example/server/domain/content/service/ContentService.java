@@ -83,7 +83,9 @@ public class ContentService {
 	public ExploreResponse getExplore(Long userId, int page, int size){
 
 		ContentLevel userLevel = getUserContentLevel(userId);
+
 		LocalDateTime now = LocalDateTime.now();
+
 		attendanceService.providedAttendanceRewardToday(now, userId);
 
 		List<Content> all = new ArrayList<>();
@@ -108,6 +110,7 @@ public class ContentService {
 	}
 
 	public ExploreResponse getExploreByCategory(Long userId, ContentCategory category, int page, int size) {
+
 		ContentLevel userLevel = getUserContentLevel(userId);
 
 		int fetchSize = Math.max(10, (page + 1) * size);
@@ -115,7 +118,8 @@ public class ContentService {
 		List<Content> contents = contentRepository.findByCategoryAndLevel(
 				userLevel,
 				category,
-				PageRequest.of(0, fetchSize));
+				PageRequest.of(0, fetchSize)
+		);
 
 		List<ContentResponse> result = contents.stream()
 				.skip((long) page * size)
@@ -124,7 +128,8 @@ public class ContentService {
 				.toList();
 
 		return ExploreResponse.builder()
-				.contents(result).build();
+				.contents(result)
+				.build();
 	}
 
 	// 컨텐츠 상세 정보 조회 + 조회수
