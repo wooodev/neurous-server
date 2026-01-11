@@ -61,4 +61,23 @@ public interface ContentRepository extends JpaRepository<Content, Long> {
 
 	boolean existsByNewsArticleIdAndContentLevel(Long newsArticleId, ContentLevel contentLevel);
 
+	@Query("""
+        SELECT c
+        FROM Content c
+        WHERE c.contentLevel = :level
+          AND c.contentCategory = :category
+          AND NOT EXISTS (
+              SELECT 1
+              FROM ReadContent rc
+              WHERE rc.user.id = :userId
+                AND rc.content.contentId = c.contentId
+          )
+        ORDER BY c.batchTime DESC, c.contentId DESC
+    """)
+	List<Content> findByCategoryAndLevelExcludeReadByUser(
+			@Param("userId") Long userId,
+			@Param("level") ContentLevel level,
+			@Param("category") ContentCategory category,
+			Pageable pageable
+	);
 }

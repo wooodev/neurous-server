@@ -9,9 +9,9 @@ import com.example.server.domain.quiz.entity.QuizSolve;
 
 @Repository
 public interface QuizSolveRepository extends JpaRepository<QuizSolve, Long> {
-
-	boolean existsByReadContent_ReadContentId(Long readContentId);
-
 	Optional<QuizSolve> findByUser_IdAndReadContent_Content_ContentId(Long userId, Long contentId);
 
+	boolean existsByUser_IdAndReadContent_Content_ContentId(Long userId, Long contentId);
+
+	boolean existsByReadContent_ReadContentId(Long readContentId);
 }

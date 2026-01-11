@@ -71,15 +71,15 @@ public class MissionService {
 
 		if (totalCount == 1) {
 			// 1순위 키워드에서 5개
-			resultContents.addAll(fetchContents(userLevel, interests.get(0), 5));
+			resultContents.addAll(fetchContents(userId,userLevel, interests.get(0), 5));
 		} else if (totalCount == 2) {
 			// 1순위 3개 / 2순위 2개
-			resultContents.addAll(fetchContents(userLevel, interests.get(0), 3));
-			resultContents.addAll(fetchContents(userLevel, interests.get(1), 2));
+			resultContents.addAll(fetchContents(userId, userLevel, interests.get(0), 3));
+			resultContents.addAll(fetchContents(userId, userLevel, interests.get(1), 2));
 		} else if (totalCount >= 3) {
-			resultContents.addAll(fetchContents(userLevel, interests.get(0), 3));
-			resultContents.addAll(fetchContents(userLevel, interests.get(1), 1));
-			resultContents.addAll(fetchContents(userLevel, interests.get(2), 1));
+			resultContents.addAll(fetchContents(userId, userLevel, interests.get(0), 3));
+			resultContents.addAll(fetchContents(userId, userLevel, interests.get(1), 1));
+			resultContents.addAll(fetchContents(userId, userLevel, interests.get(2), 1));
 		}
 
 		return resultContents.stream()
@@ -93,9 +93,16 @@ public class MissionService {
 	}
 
 	//콘텐츠 추출 로직
-	private List<Content> fetchContents(ContentLevel level, UserInterest interest, int size) {
+	private List<Content> fetchContents(Long userId, ContentLevel level, UserInterest interest, int size) {
+
 		ContentCategory category = ContentCategory.valueOf(interest.getInterest().name());
-		return contentRepository.findByCategoryAndLevel(level, category, PageRequest.of(0, size));
+
+		return contentRepository.findByCategoryAndLevelExcludeReadByUser(
+				userId,
+				level,
+				category,
+				PageRequest.of(0, size)
+		);
 	}
 
 	public User findByUserId(Long userId) {

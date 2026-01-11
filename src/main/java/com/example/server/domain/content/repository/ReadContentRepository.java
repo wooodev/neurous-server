@@ -41,6 +41,8 @@ public interface ReadContentRepository extends JpaRepository<ReadContent, Long> 
 	@Query("SELECT rc FROM ReadContent rc JOIN FETCH rc.user WHERE rc.readContentId = :id")
 	Optional<ReadContent> findByIdWithUser(@Param("id") Long id);
 
+	Optional<ReadContent> findTopByUser_IdAndContent_ContentIdOrderByReadAtDesc(Long userId, Long contentId);
+
 }
 
 
