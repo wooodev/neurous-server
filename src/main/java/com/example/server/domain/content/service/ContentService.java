@@ -246,11 +246,18 @@ public class ContentService {
 	public ReadStatusResponse updateReadStatus(Long userId, Long contentId,
 		UpdateReadStatusRequest updateReadStatusRequest, boolean isFromMission) {
 
-		ReadContent readContent = findReadContentById(userId, contentId);
 		User user = findUserById(userId);
 
+		Content content = findContentById(contentId);
+
+		ReadContent readContent = readContentRepository.findByUser_IdAndContent_ContentId(userId, contentId)
+				.orElseGet(() -> readContentRepository.save(ReadContent.of(user, content, 0L, false)));
+
+
 		if (readContent.isCompleted()) {
-			return ReadStatusResponse.builder().isCompleted(true).build();
+			return ReadStatusResponse.builder()
+					.isCompleted(true)
+					.build();
 		}
 
 		readContent.updateStatus(updateReadStatusRequest.staySeconds());
