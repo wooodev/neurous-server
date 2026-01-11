@@ -11,7 +11,11 @@ public enum MissionType {
 	QUIZ_SOLVE(MissionCategory.QUIZ, 3, "퀴즈 풀기"),
 
 	// 홈 화면에서 글 3개 읽기
-	HOME_READ(MissionCategory.READ, 3, "홈에서 글 읽기");
+	HOME_READ(MissionCategory.READ, 3, "홈에서 글 읽기"),
+
+	EARN_POINT(MissionCategory.POINT, 60, "60P 포인트 획득하기"),
+
+	READ_CONTENT_CHECK(MissionCategory.READ, 1, "읽은 글 확인하기");
 
 	private final MissionCategory category; // READ, QUIZ 등
 	private final int defaultGoalCount;     // 기본 목표 개수 (1개, 3개 등)
