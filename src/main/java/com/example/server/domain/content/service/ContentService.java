@@ -197,7 +197,7 @@ public class ContentService {
 		int todayReadCount = user.getCountReadContent();
 
 		if (isReadContent(userId, contentId)) {
-			return ContentAccessResponse.builder().isReadable(true).build();
+			return ContentAccessResponse.ofReadable(user.getPoint());
 		}
 
 		int limit = user.isNewUserBonusPeriod()
@@ -208,7 +208,7 @@ public class ContentService {
 			return resolvePointOrAdResponse(user);
 		}
 
-		return ContentAccessResponse.builder().isReadable(true).build();
+		return ContentAccessResponse.ofReadable(user.getPoint());
 	}
 
 	//포인트 상태 파악 (부족 -> 광고 , 가능 -> 포인트 사용)
@@ -216,12 +216,16 @@ public class ContentService {
 		int currentUserPoint = user.getPoint();
 		int needPoint = PointExperienceProvisionInformation.NEED_READ_CONTENT_POINT;
 
-		if (user.getPoint() >= needPoint) {
+		if (currentUserPoint >= needPoint) {
 			return ContentAccessResponse.ofUsePoint(currentUserPoint, needPoint);
 		} else {
 			int lackOfPoints = needPoint - currentUserPoint;
-			return ContentAccessResponse.ofUseAd(lackOfPoints,
-				PointExperienceProvisionInformation.WATCH_AD_REWARDS_POINT);
+			return ContentAccessResponse.ofUseAd(
+					currentUserPoint,
+					needPoint,
+					lackOfPoints,
+					PointExperienceProvisionInformation.WATCH_AD_REWARDS_POINT
+			);
 		}
 	}
 

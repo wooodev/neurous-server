@@ -83,12 +83,13 @@ public class MissionService {
 		}
 
 		return resultContents.stream()
-			.map(c -> new MissionContentResponse(
-				c.getTitle(),
-				c.getImageUrl(),
-				c.getContentCategory().name(),
-				c.getCreatedAt().toLocalDate()
-			)).toList();
+				.map(c -> new MissionContentResponse(
+					c.getTitle(),
+					c.getImageUrl(),
+					c.getContentCategory().name(),
+					c.getCreatedAt().toLocalDate(),
+					c.getContentId()
+				)).toList();
 	}
 
 	//콘텐츠 추출 로직

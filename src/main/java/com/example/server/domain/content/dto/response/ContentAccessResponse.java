@@ -9,7 +9,6 @@ import lombok.Getter;
 
 @Getter
 @Builder
-@JsonInclude(JsonInclude.Include.NON_NULL)
 public class ContentAccessResponse {
 
 	private final boolean isReadable; //읽기 가능 여부
@@ -25,26 +24,48 @@ public class ContentAccessResponse {
 	private final Integer lackOfPoints; //부족한 포인트
 	private final Integer rewardPoints; //지급 포인트
 
-	public static ContentAccessResponse ofUsePoint(int current, int required) {
+	public static ContentAccessResponse ofReadable(int currentPoints) {
 		return ContentAccessResponse.builder()
-			.isReadable(false)
-			.accessType(AccessType.POINT_USE)
-			.title(ContentAccessMessage.ACCESSTYPE_POINT_MESSAGE.getTitle())
-			.message(ContentAccessMessage.ACCESSTYPE_POINT_MESSAGE.getMessage())
-			.currentPoints(current)
-			.requiredPoints(required)
-			.build();
-
+				.isReadable(true)
+				.accessType(null)
+				.title(null)
+				.message(null)
+				.currentPoints(currentPoints)
+				.requiredPoints(0)
+				.lackOfPoints(0)
+				.rewardPoints(0)
+				.build();
 	}
 
-	public static ContentAccessResponse ofUseAd(int lack, int reward) {
+	public static ContentAccessResponse ofUseAd(
+			int currentPoints,
+			int requiredPoints,
+			int lackOfPoints,
+			int rewardPoints
+	) {
 		return ContentAccessResponse.builder()
-			.isReadable(false)
-			.accessType(AccessType.AD_WATCH)
-			.title(ContentAccessMessage.ACCESSTYPE_AD_MESSAGE.getTitle())
-			.message(ContentAccessMessage.ACCESSTYPE_AD_MESSAGE.getMessage())
-			.lackOfPoints(lack)
-			.rewardPoints(reward)
-			.build();
+				.isReadable(false)
+				.accessType(AccessType.AD_WATCH)
+				.title(ContentAccessMessage.ACCESSTYPE_AD_MESSAGE.getTitle())
+				.message(ContentAccessMessage.ACCESSTYPE_AD_MESSAGE.getMessage())
+				.currentPoints(currentPoints)
+				.requiredPoints(requiredPoints)
+				.lackOfPoints(lackOfPoints)
+				.rewardPoints(rewardPoints)
+				.build();
 	}
+
+	public static ContentAccessResponse ofUsePoint(int currentPoints, int requiredPoints) {
+		return ContentAccessResponse.builder()
+				.isReadable(false)
+				.accessType(AccessType.POINT_USE)
+				.title(ContentAccessMessage.ACCESSTYPE_POINT_MESSAGE.getTitle())
+				.message(ContentAccessMessage.ACCESSTYPE_POINT_MESSAGE.getMessage())
+				.currentPoints(currentPoints)
+				.requiredPoints(requiredPoints)
+				.lackOfPoints(0)
+				.rewardPoints(0)
+				.build();
+	}
+
 }
