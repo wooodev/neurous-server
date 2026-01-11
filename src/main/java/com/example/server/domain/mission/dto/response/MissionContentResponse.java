@@ -6,6 +6,7 @@ public record MissionContentResponse(
 	String contentTile,
 	String contentImg,
 	String contentCategory,
-	LocalDate contentDate
+	LocalDate contentDate,
+	Long contentId
 ) {
 }

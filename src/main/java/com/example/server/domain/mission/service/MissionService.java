@@ -87,7 +87,8 @@ public class MissionService {
 				c.getTitle(),
 				c.getImageUrl(),
 				c.getContentCategory().name(),
-				c.getCreatedAt().toLocalDate()
+				c.getCreatedAt().toLocalDate(),
+					c.getContentId()
 			)).toList();
 	}
 
