@@ -1,13 +1,14 @@
-name: neurousCD
+name: CD
 
 on:
   push:
-    branches: [ develop ]
+    branches: [ develop, main ]
 
 jobs:
-  deploy:
+  build_and_push:
     runs-on: ubuntu-latest
-
+    outputs:
+      tag: ${{ steps.meta.outputs.tag }}
     steps:
       - uses: actions/checkout@v4
 
@@ -16,26 +17,101 @@ jobs:
           distribution: temurin
           java-version: '21'
 
-      - name: Build (artifact only)
+      - name: Build (no test)
         run: ./gradlew clean build -x test
 
-      - name: NCP Registry Login
-        run: |
-          echo ${{ secrets.NCP_SECRET_KEY }} | docker login neurous.kr.ncr.ntruss.com \
-            -u ${{ secrets.NCP_ACCESS_KEY }} --password-stdin
+      - name: Set tag
+        id: meta
+        run: echo "tag=${GITHUB_SHA}" >> $GITHUB_OUTPUT
 
-      - name: Build & Push Image
-        run: |
-          docker build -t neurous.kr.ncr.ntruss.com/neurous/neurous-api:${{ github.sha }} .
-          docker push neurous.kr.ncr.ntruss.com/neurous/neurous-api:${{ github.sha }}
-
-      - name: Deploy to Server
-        uses: appleboy/ssh-action@v0.1.6
+      - name: Auth to Google Cloud
+        uses: google-github-actions/auth@v2
         with:
-          host: ${{ secrets.SERVER_HOST }}
-          username: ${{ secrets.SERVER_USER }}
-          key: ${{ secrets.SERVER_SSH_KEY }}
+          credentials_json: ${{ secrets.GCP_SA_KEY_JSON }}
+
+      - name: Setup gcloud
+        uses: google-github-actions/setup-gcloud@v2
+
+      - name: Configure Docker auth for Artifact Registry
+        run: gcloud auth configure-docker ${{ secrets.GCP_REGION }}-docker.pkg.dev -q
+
+      - name: Build & Push Image (Artifact Registry)
+        env:
+          PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+          REGION: ${{ secrets.GCP_REGION }}
+          TAG: ${{ steps.meta.outputs.tag }}
+        run: |
+          IMAGE="${REGION}-docker.pkg.dev/${PROJECT_ID}/neurous/neurous-api:${TAG}"
+          docker build -t "${IMAGE}" .
+          docker push "${IMAGE}"
+
+  deploy_dev:
+    needs: build_and_push
+    if: github.ref == 'refs/heads/develop'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Copy docker-compose to DEV
+        uses: appleboy/scp-action@v1
+        with:
+          host: ${{ secrets.DEV_HOST }}
+          username: ${{ secrets.DEV_USER }}
+          key: ${{ secrets.DEV_SSH_KEY }}
+          source: "deploy/docker-compose.yml"
+          target: "/opt/neurous"
+
+      - name: Deploy to DEV
+        uses: appleboy/ssh-action@v0.1.6
+        env:
+          GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+          GCP_REGION: ${{ secrets.GCP_REGION }}
+          IMAGE_TAG: ${{ needs.build_and_push.outputs.tag }}
+        with:
+          host: ${{ secrets.DEV_HOST }}
+          username: ${{ secrets.DEV_USER }}
+          key: ${{ secrets.DEV_SSH_KEY }}
+          envs: GCP_PROJECT_ID,GCP_REGION,IMAGE_TAG
           script: |
-            cd /home/ubuntu/neurous
-            docker pull neurous.kr.ncr.ntruss.com/neurous/neurous-api:${{ github.sha }}
-            IMAGE_TAG=${{ github.sha }} docker compose --env-file .env.prod -f docker-compose.prod.yml up -d --force-recreate --remove-orphans
+            cd /opt/neurous
+            mv deploy/docker-compose.yml ./docker-compose.yml 2>/dev/null || true
+
+            # 서버에서 Artifact Registry pull 가능해야 함 (권한/인증)
+            export GCP_PROJECT_ID="$GCP_PROJECT_ID"
+            export IMAGE_TAG="$IMAGE_TAG"
+            docker compose up -d --force-recreate --remove-orphans
+
+  deploy_prod:
+    needs: build_and_push
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Copy docker-compose to PROD
+        uses: appleboy/scp-action@v1
+        with:
+          host: ${{ secrets.PROD_HOST }}
+          username: ${{ secrets.PROD_USER }}
+          key: ${{ secrets.PROD_SSH_KEY }}
+          source: "deploy/docker-compose.yml"
+          target: "/opt/neurous"
+
+      - name: Deploy to PROD
+        uses: appleboy/ssh-action@v0.1.6
+        env:
+          GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+          GCP_REGION: ${{ secrets.GCP_REGION }}
+          IMAGE_TAG: ${{ needs.build_and_push.outputs.tag }}
+        with:
+          host: ${{ secrets.PROD_HOST }}
+          username: ${{ secrets.PROD_USER }}
+          key: ${{ secrets.PROD_SSH_KEY }}
+          envs: GCP_PROJECT_ID,GCP_REGION,IMAGE_TAG
+          script: |
+            cd /opt/neurous
+            mv deploy/docker-compose.yml ./docker-compose.yml 2>/dev/null || true
+
+            export GCP_PROJECT_ID="$GCP_PROJECT_ID"
+            export IMAGE_TAG="$IMAGE_TAG"
+            docker compose up -d --force-recreate --remove-orphans

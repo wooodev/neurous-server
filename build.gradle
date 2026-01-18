@@ -77,6 +77,8 @@ dependencies {
     implementation 'org.flywaydb:flyway-core'
     implementation 'org.flywaydb:flyway-mysql'
 
+    implementation "com.google.cloud:google-cloud-storage:2.33.0"
+
 
 }
 

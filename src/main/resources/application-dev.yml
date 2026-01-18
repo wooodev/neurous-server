@@ -4,10 +4,12 @@ spring:
     username: ${DB_USERNAME}
     password: ${DB_PASSWORD}
     driver-class-name: com.mysql.cj.jdbc.Driver
+
   data:
     redis:
       host: ${REDIS_HOST:redis}
       port: ${REDIS_PORT:6379}
+
   flyway:
     enabled: false
 
@@ -29,4 +31,6 @@ springdoc:
 
 logging:
   level:
-    root: INFO
+    org.hibernate.tool.schema: DEBUG
+    org.hibernate.SQL: DEBUG
+    org.hibernate.orm.jdbc.bind: TRACE

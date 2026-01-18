@@ -1,7 +1,7 @@
 package com.example.server.domain.news.service;
 
 import com.example.server.domain.news.client.GeminiImageClient;
-import com.example.server.domain.news.client.NcpObjectStorageClient;
+import com.example.server.domain.news.client.ObjectStorageClient;
 import com.example.server.domain.news.dto.GeminiImageProperties;
 import com.example.server.domain.news.entity.NewsArticle;
 import com.example.server.domain.news.repository.NewsArticleRepository;
@@ -24,7 +24,7 @@ public class ArticleImageGenerationService {
     private final GeminiImageClient gemini;
     private final GeminiImageProperties geminiProps;
 
-    private final NcpObjectStorageClient objectStorage;
+    private final ObjectStorageClient objectStorage;
     private final NewsArticleRepository newsArticleRepository;
 
     private final Semaphore singleFlight = new Semaphore(1);
@@ -47,7 +47,7 @@ public class ArticleImageGenerationService {
             if (png == null) return null;
 
             String key = objectStorage.buildKey("news_" + a.getNewsArticleId() + ".png");
-            String url = objectStorage.putPublicPng(key, png);
+            String url = objectStorage.uploadPng(key, png);
 
             a.setImageUrl(url);
             newsArticleRepository.save(a);
