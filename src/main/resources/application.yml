@@ -85,14 +85,11 @@ google:
     base-backoff-ms: 800
     max-backoff-ms: 15000
 
-storage:
-  provider: ${STORAGE_PROVIDER:ncp}
-
 gcs:
   object-storage:
     provider: gcs
     bucket: ${GCS_BUCKET:neurous-bucket}
     prefix: ${GCS_PREFIX:dev/news-images}
     public-base-url: ${GCS_PUBLIC_BASE_URL:https://storage.googleapis.com/neurous-bucket}
-    profile-path: ${PROFILE_PATH}
-    character-path: ${CHARACTER_PATH}
+    profile-path: ${PROFILE_PATH:dev/profile/}
+    character-path: ${CHARACTER_PATH:dev/character/}
