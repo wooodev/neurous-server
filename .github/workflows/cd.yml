@@ -65,6 +65,17 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Check docker-compose exists
+        run: ls -al docker-compose.yml
+
+      - name: Check key is present (length only)
+        run: |
+          if [ -z "${{ secrets.DEV_SSH_KEY }}" ]; then echo "DEV_SSH_KEY missing" && exit 1; fi
+          echo "DEV_SSH_KEY length: ${#DEV_SSH_KEY}"
+        env:
+          DEV_SSH_KEY: ${{ secrets.DEV_SSH_KEY }}
+
+
       - name: Copy docker-compose to DEV
         uses: appleboy/scp-action@v1
         with:
@@ -86,8 +97,8 @@ jobs:
           key: ${{ secrets.DEV_SSH_KEY }}
           envs: GCP_PROJECT_ID,GCP_REGION,IMAGE_TAG
           script: |
-            cd /opt/neurous
-            mv deploy/docker-compose.yml ./docker-compose.yml 2>/dev/null || true
+            cd /home/ubuntu/neurous
+            mv docker-compose.yml ./docker-compose.yml 2>/dev/null || true
 
             # 서버에서 Artifact Registry pull 가능해야 함 (권한/인증)
             export GCP_PROJECT_ID="$GCP_PROJECT_ID"
@@ -100,6 +111,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
+      - name: Check docker-compose exists
+        run: ls -al docker-compose.yml
 
       - name: Copy docker-compose to PROD
         uses: appleboy/scp-action@v1
