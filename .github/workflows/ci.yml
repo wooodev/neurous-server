@@ -40,7 +40,8 @@ jobs:
         env:
           NAVER_CLIENT_ID: ${{ secrets.NAVER_CLIENT_ID }}
           NAVER_CLIENT_SECRET: ${{ secrets.NAVER_CLIENT_SECRET }}
-        run: ./gradlew clean test -Dspring.profiles.active=test --stacktrace --info
+          APP_BACKEND_URL: ${{ secrets.APP_BACKEND_URL }}
+        run: ./gradlew clean test -Dspring.profiles.active=test --info
 
       - name: Upload test report on failure
         if: failure()
