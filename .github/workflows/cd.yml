@@ -42,8 +42,11 @@ jobs:
           TAG: ${{ steps.meta.outputs.tag }}
         run: |
           IMAGE="${REGION}-docker.pkg.dev/${PROJECT_ID}/neurous/neurous-api:${TAG}"
-          docker build -t "${IMAGE}" .
+          IMAGE_LATEST="${REGION}-docker.pkg.dev/${PROJECT_ID}/neurous/neurous-api:latest"
+
+          docker build -t "${IMAGE}" -t "${IMAGE_LATEST}" .
           docker push "${IMAGE}"
+          docker push "${IMAGE_LATEST}"
           
       - name: Upload build artifacts on failure
         if: failure()
