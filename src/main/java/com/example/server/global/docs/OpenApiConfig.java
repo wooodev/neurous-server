@@ -24,11 +24,8 @@ public class OpenApiConfig {
 	public OpenAPI customOpenApi() {
 		final String securitySchemeName = "Bearer Token";
 
-		String finalUrl = (backendBaseUrl == null || !backendBaseUrl.startsWith("http"))
-			? "http://175.45.193.98:8080" : backendBaseUrl;
-
 		return new OpenAPI()
-			.addServersItem(new Server().url(finalUrl))
+			.addServersItem(new Server().url(backendBaseUrl))
 			.info(new Info()
 				.title("API 문서")
 				.version("v1.0")

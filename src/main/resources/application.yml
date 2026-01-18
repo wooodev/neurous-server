@@ -1,4 +1,3 @@
-#spring.application.name=server
 spring:
   application:
     name: server
@@ -6,8 +5,8 @@ spring:
     default: local
   data:
     redis:
-      host: ${REDIS_HOST:localhost}
-      port: 6379
+      host: ${REDIS_HOST:redis}
+      port: ${REDIS_PORT:6379}
   tomcat:
     accesslog:
       enabled: true
@@ -33,7 +32,7 @@ jwt:
 
 app:
   backend:
-    base-url: ${APP_BACKEND_URL:http://175.45.193.98:8080}
+    base-url: ${APP_BACKEND_URL}
 
 oauth:
   kakao:
@@ -42,18 +41,6 @@ oauth:
     user-info-url: https://www.googleapis.com/oauth2/v2/userinfo
   naver:
     user-info-url: https://openapi.naver.com/v1/nid/me
-
-ncp:
-  object-storage:
-    bucket-base-url: ${NCP_BUCKET}
-    profile-url: ${NCP_PROFILE_BUCKET}
-    character-url: ${NCP_CHARACTER_BUCKET}
-    endpoint: "https://kr.object.ncloudstorage.com"
-    region-name: kr-standard
-    bucket: neurous-registry-bucket
-    access-key: ${NCP_ACCESS_KEY}
-    secret-key: ${NCP_SECRET_KEY}
-    prefix: news-images
 
 naver:
   openapi:
@@ -97,3 +84,15 @@ google:
     max-retries: 3
     base-backoff-ms: 800
     max-backoff-ms: 15000
+
+storage:
+  provider: ${STORAGE_PROVIDER:ncp}
+
+gcs:
+  object-storage:
+    provider: gcs
+    bucket: ${GCS_BUCKET:neurous-bucket}
+    prefix: ${GCS_PREFIX:dev/news-images}
+    public-base-url: ${GCS_PUBLIC_BASE_URL:https://storage.googleapis.com/neurous-bucket}
+    profile-path: ${PROFILE_PATH}
+    character-path: ${CHARACTER_PATH}

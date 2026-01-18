@@ -9,13 +9,13 @@ import lombok.Getter;
 @Getter
 public class StorageConfig {
 
-	@Value("${ncp.object-storage.bucket-base-url}")
+	@Value("${gcs.object-storage.public-base-url}")
 	private String baseUrl;
 
-	@Value("${ncp.object-storage.profile-url}")
+	@Value("${gcs.object-storage.profile-path}")
 	private String profilePath;
 
-	@Value("${ncp.object-storage.character-url}")
+	@Value("${gcs.object-storage.character-path}")
 	private String characterPath;
 
 	public String getProfileUrl(String fileName) {
