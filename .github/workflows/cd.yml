@@ -60,6 +60,7 @@ jobs:
             **/build/reports/**
             **/build/test-results/**
 
+
   deploy_dev:
     needs: build_and_push
     if: github.ref == 'refs/heads/develop'
@@ -70,34 +71,25 @@ jobs:
       - name: Check docker-compose exists
         run: ls -al docker-compose.yml
 
-      - name: Prepare SSH key (DEV)
-        env:
-          DEV_HOST: ${{ secrets.DEV_HOST }}
-          DEV_PORT: ${{ secrets.DEV_PORT || 22 }}
-          DEV_SSH_KEY: ${{ secrets.DEV_SSH_KEY }}
+      - name: Check key is present (length only)
         run: |
-          if [ -z "$DEV_SSH_KEY" ]; then echo "DEV_SSH_KEY missing" && exit 1; fi
+          if [ -z "${{ secrets.DEV_SSH_KEY }}" ]; then echo "DEV_SSH_KEY missing" && exit 1; fi
           echo "DEV_SSH_KEY length: ${#DEV_SSH_KEY}"
+        env:
+          DEV_SSH_KEY: ${{ secrets.DEV_SSH_KEY }}
 
-          mkdir -p ~/.ssh
-          printf "%s" "$DEV_SSH_KEY" > ~/.ssh/dev_deploy_key
-          chmod 600 ~/.ssh/dev_deploy_key
-
-          ssh-keyscan -p "$DEV_PORT" -H "$DEV_HOST" >> ~/.ssh/known_hosts
 
       - name: Copy docker-compose to DEV
         uses: appleboy/scp-action@v1
         with:
           host: ${{ secrets.DEV_HOST }}
           username: ${{ secrets.DEV_USER }}
-          port: ${{ secrets.DEV_PORT || 22 }}
-          key_path: ~/.ssh/dev_deploy_key
+          key: ${{ secrets.DEV_SSH_KEY }}
           source: "docker-compose.yml"
           target: "/home/ubuntu/neurous"
-          overwrite: true
 
       - name: Deploy to DEV
-        uses: appleboy/ssh-action@v1.0.3
+        uses: appleboy/ssh-action@v0.1.6
         env:
           GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
           GCP_REGION: ${{ secrets.GCP_REGION }}
@@ -105,15 +97,15 @@ jobs:
         with:
           host: ${{ secrets.DEV_HOST }}
           username: ${{ secrets.DEV_USER }}
-          port: ${{ secrets.DEV_PORT || 22 }}
-          key_path: ~/.ssh/dev_deploy_key
+          key: ${{ secrets.DEV_SSH_KEY }}
           envs: GCP_PROJECT_ID,GCP_REGION,IMAGE_TAG
           script: |
             cd /home/ubuntu/neurous
+            mv docker-compose.yml ./docker-compose.yml 2>/dev/null || true
 
+            # 서버에서 Artifact Registry pull 가능해야 함 (권한/인증)
             export GCP_PROJECT_ID="$GCP_PROJECT_ID"
             export IMAGE_TAG="$IMAGE_TAG"
-
             docker compose up -d --force-recreate --remove-orphans
 
   deploy_prod:
@@ -126,34 +118,17 @@ jobs:
       - name: Check docker-compose exists
         run: ls -al docker-compose.yml
 
-      - name: Prepare SSH key (PROD)
-        env:
-          PROD_HOST: ${{ secrets.PROD_HOST }}
-          PROD_PORT: ${{ secrets.PROD_PORT || 22 }}
-          PROD_SSH_KEY: ${{ secrets.PROD_SSH_KEY }}
-        run: |
-          if [ -z "$PROD_SSH_KEY" ]; then echo "PROD_SSH_KEY missing" && exit 1; fi
-          echo "PROD_SSH_KEY length: ${#PROD_SSH_KEY}"
-
-          mkdir -p ~/.ssh
-          printf "%s" "$PROD_SSH_KEY" > ~/.ssh/prod_deploy_key
-          chmod 600 ~/.ssh/prod_deploy_key
-
-          ssh-keyscan -p "$PROD_PORT" -H "$PROD_HOST" >> ~/.ssh/known_hosts
-
       - name: Copy docker-compose to PROD
         uses: appleboy/scp-action@v1
         with:
           host: ${{ secrets.PROD_HOST }}
           username: ${{ secrets.PROD_USER }}
-          port: ${{ secrets.PROD_PORT || 22 }}
-          key_path: ~/.ssh/prod_deploy_key
+          key: ${{ secrets.PROD_SSH_KEY }}
           source: "docker-compose.yml"
           target: "/home/ubuntu/neurous"
-          overwrite: true
 
       - name: Deploy to PROD
-        uses: appleboy/ssh-action@v1.0.3
+        uses: appleboy/ssh-action@v0.1.6
         env:
           GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
           GCP_REGION: ${{ secrets.GCP_REGION }}
@@ -161,13 +136,12 @@ jobs:
         with:
           host: ${{ secrets.PROD_HOST }}
           username: ${{ secrets.PROD_USER }}
-          port: ${{ secrets.PROD_PORT || 22 }}
-          key_path: ~/.ssh/prod_deploy_key
+          key: ${{ secrets.PROD_SSH_KEY }}
           envs: GCP_PROJECT_ID,GCP_REGION,IMAGE_TAG
           script: |
             cd /home/ubuntu/neurous
+            mv docker-compose.yml ./docker-compose.yml 2>/dev/null || true
 
             export GCP_PROJECT_ID="$GCP_PROJECT_ID"
             export IMAGE_TAG="$IMAGE_TAG"
-
             docker compose up -d --force-recreate --remove-orphans
