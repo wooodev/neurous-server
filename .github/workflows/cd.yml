@@ -87,6 +87,7 @@ jobs:
           key: ${{ secrets.DEV_SSH_KEY }}
           source: "docker-compose.yml"
           target: "/home/ubuntu/neurous"
+          overwrite: true
 
       - name: Deploy to DEV
         uses: appleboy/ssh-action@v0.1.6
@@ -126,6 +127,7 @@ jobs:
           key: ${{ secrets.PROD_SSH_KEY }}
           source: "docker-compose.yml"
           target: "/home/ubuntu/neurous"
+          overwrite: true
 
       - name: Deploy to PROD
         uses: appleboy/ssh-action@v0.1.6
