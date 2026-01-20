@@ -38,10 +38,22 @@ app:
 oauth:
   kakao:
     user-info-url: https://kapi.kakao.com/v2/user/me
+    unlink-url: https://kapi.kakao.com/v1/user/unlink
   google:
     user-info-url: https://www.googleapis.com/oauth2/v2/userinfo
+    revoke-url: https://oauth2.googleapis.com/revoke
   naver:
     user-info-url: https://openapi.naver.com/v1/nid/me
+    token-url: https://nid.naver.com/oauth2.0/token
+    client-id: ${NAVER_CLIENT_ID}
+    client-secret: ${NAVER_CLIENT_SECRET
+  apple:
+    token-url: https://appleid.apple.com/auth/token
+    revoke-url: https://appleid.apple.com/auth/revoke
+    client-id: ${APPLE_CLIENT_ID}
+    team-id: ${APPLE_TEAM_ID}
+    key-id: ${APPLE_KEY_ID}
+    private-key: ${APPLE_PRIVATE_KEY} # p8 문자열(개행 포함이면 환경변수 처리 방식 주의)
 
 ncp:
   object-storage:

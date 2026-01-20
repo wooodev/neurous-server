@@ -1,5 +1,9 @@
 package com.example.server.domain.user.controller.docs;
 
+import com.example.server.domain.user.controller.dto.request.WithdrawRequest;
+import com.example.server.global.exception.message.SuccessMessage;
+import com.example.server.global.security.annotation.AuthenticatedApi;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
 import com.example.server.domain.user.controller.dto.request.UpdateInterestsRequest;
@@ -23,4 +27,10 @@ public interface UserControllerDocs {
 	SuccessResponse<Void> updateLevel(
 		@RequestBody @Valid UpdateLevelRequest request,
 		@CurrentUserId Long userId);
+
+	@WithdrawDocs
+	public SuccessResponse<Void> withdraw(
+			@RequestBody @Valid WithdrawRequest request,
+			@CurrentUserId Long userId
+	) ;
 }

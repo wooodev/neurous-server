@@ -13,4 +13,13 @@ public class NeurousException extends RuntimeException {
 		super(errorMessage.getMessage());
 		this.errorMessage = errorMessage;
 	}
+	public NeurousException(ErrorMessage errorMessage, Throwable cause) {
+		super(errorMessage.getMessage(), cause);
+		this.errorMessage = errorMessage;
+	}
+
+	public ErrorMessage getErrorMessage() {
+		return errorMessage;
+	}
+
 }

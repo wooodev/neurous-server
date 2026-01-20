@@ -1,9 +1,7 @@
 package com.example.server.domain.user.controller;
 
-import org.springframework.web.bind.annotation.PatchMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import com.example.server.domain.user.controller.dto.request.WithdrawRequest;
+import org.springframework.web.bind.annotation.*;
 
 import com.example.server.domain.user.controller.docs.UserControllerDocs;
 import com.example.server.domain.user.controller.dto.request.UpdateInterestsRequest;
@@ -43,6 +41,16 @@ public class UserController implements UserControllerDocs {
 		@CurrentUserId Long userId) {
 		userService.updateLevel(userId, request.level());
 		return SuccessResponse.of(SuccessMessage.UPDATE_SUCCESS);
+	}
+
+	@AuthenticatedApi
+	@DeleteMapping("/withdraw")
+	public SuccessResponse<Void> withdraw(
+			@RequestBody @Valid WithdrawRequest request,
+			@CurrentUserId Long userId
+	) {
+		userService.withdraw(userId, request);
+		return SuccessResponse.of(SuccessMessage.WITHDRAW_SUCCESS);
 	}
 
 }

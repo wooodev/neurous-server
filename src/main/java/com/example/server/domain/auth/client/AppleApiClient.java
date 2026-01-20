@@ -2,6 +2,7 @@ package com.example.server.domain.auth.client;
 
 import java.util.Base64;
 
+import com.example.server.domain.auth.service.AppleOAuthTokenService;
 import org.springframework.stereotype.Component;
 
 import com.example.server.domain.auth.dto.AppleUserInfo;
@@ -23,6 +24,7 @@ import lombok.extern.slf4j.Slf4j;
 public class AppleApiClient implements OAuthClient {
 
 	private final ObjectMapper objectMapper;
+	private final AppleOAuthTokenService appleOAuthTokenService;
 
 	@Override
 	public OAuthProvider getProvider() {
@@ -71,5 +73,10 @@ public class AppleApiClient implements OAuthClient {
 			.build()
 			.parseClaimsJwt(identityToken)
 			.getBody();
+	}
+
+	@Override
+	public void unlink(String refreshToken) {
+		appleOAuthTokenService.revokeByRefreshToken(refreshToken);
 	}
 }
