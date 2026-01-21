@@ -45,7 +45,7 @@ public class MissionService {
 
 		ensureMissionsExist(user);
 
-		// 유저 맞춤 콘텐츠 5개 추출
+		// 유저 맞춤 콘텐츠 3개 추출
 		List<MissionContentResponse> contents = findMissionContent(userId);
 
 		// 미션 진행 상태 조회 (기존에 작성한 MissionProgressResponse 활용)
@@ -70,14 +70,14 @@ public class MissionService {
 		int totalCount = interests.size();
 
 		if (totalCount == 1) {
-			// 1순위 키워드에서 5개
-			resultContents.addAll(fetchContents(userId,userLevel, interests.get(0), 5));
+			// 1순위 키워드에서 3개
+			resultContents.addAll(fetchContents(userId,userLevel, interests.get(0), 3));
 		} else if (totalCount == 2) {
-			// 1순위 3개 / 2순위 2개
-			resultContents.addAll(fetchContents(userId, userLevel, interests.get(0), 3));
-			resultContents.addAll(fetchContents(userId, userLevel, interests.get(1), 2));
+			// 1순위 2개 / 2순위 1개
+			resultContents.addAll(fetchContents(userId, userLevel, interests.get(0), 2));
+			resultContents.addAll(fetchContents(userId, userLevel, interests.get(1), 1));
 		} else if (totalCount >= 3) {
-			resultContents.addAll(fetchContents(userId, userLevel, interests.get(0), 3));
+			resultContents.addAll(fetchContents(userId, userLevel, interests.get(0), 1));
 			resultContents.addAll(fetchContents(userId, userLevel, interests.get(1), 1));
 			resultContents.addAll(fetchContents(userId, userLevel, interests.get(2), 1));
 		}
