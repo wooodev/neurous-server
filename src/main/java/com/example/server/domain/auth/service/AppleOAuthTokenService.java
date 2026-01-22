@@ -16,6 +16,7 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.client.RestClientResponseException;
 
 @Slf4j
 @Service
@@ -52,11 +53,17 @@ public class AppleOAuthTokenService {
                     String.class
             );
 
+            log.info("[APPLE][TOKEN] status={} body={}", response.getStatusCode(), response.getBody());
+
             JsonNode node = objectMapper.readTree(response.getBody());
             return node.path("refresh_token").asText(null);
-        } catch (RestClientException e) {
+        } catch (RestClientResponseException e) {
+            log.warn("[APPLE][TOKEN][FAIL] status={} body={}",
+                    e.getRawStatusCode(), e.getResponseBodyAsString(), e);
             throw new NeurousException(ErrorMessage.OAUTH2_APPLE_API_ERROR);
+
         } catch (Exception e) {
+            log.warn("[APPLE][TOKEN][FAIL] {}", e.getMessage(), e);
             throw new NeurousException(ErrorMessage.OAUTH2_APPLE_API_ERROR);
         }
     }
