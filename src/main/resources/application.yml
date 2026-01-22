@@ -52,7 +52,7 @@ oauth:
     client-id: ${APPLE_CLIENT_ID}
     team-id: ${APPLE_TEAM_ID}
     key-id: ${APPLE_KEY_ID}
-    private-key: ${APPLE_PRIVATE_KEY} # p8 문자열(개행 포함이면 환경변수 처리 방식 주의)
+    private-key: ${APPLE_PRIVATE_KEY}
 
 naver:
   openapi:

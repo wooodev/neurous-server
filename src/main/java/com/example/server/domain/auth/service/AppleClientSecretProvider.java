@@ -7,6 +7,7 @@ import java.time.Instant;
 import java.util.Base64;
 import java.util.Date;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import com.example.server.global.security.oauth.OAuthProperties;
@@ -15,13 +16,21 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import lombok.RequiredArgsConstructor;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class AppleClientSecretProvider {
 
     private final OAuthProperties oAuthProperties;
+    OAuthProperties.Apple apple = oAuthProperties.getApple();
 
     public String createClientSecret() {
+
+        log.info("[APPLE][KEY] injected len={}, startsWithPem={}",
+                apple.getPrivateKey() == null ? -1 : apple.getPrivateKey().length(),
+                apple.getPrivateKey() != null && apple.getPrivateKey().contains("BEGIN PRIVATE KEY"));
+
+
         OAuthProperties.Apple apple = oAuthProperties.getApple();
 
         Instant now = Instant.now();
@@ -42,6 +51,10 @@ public class AppleClientSecretProvider {
 
     private PrivateKey loadPrivateKey(String p8) {
         try {
+            if (p8 == null || p8.isBlank()) {
+                throw new IllegalArgumentException("privateKey is blank");
+            }
+
             String key = p8
                     .replace("-----BEGIN PRIVATE KEY-----", "")
                     .replace("-----END PRIVATE KEY-----", "")
@@ -53,6 +66,9 @@ public class AppleClientSecretProvider {
             KeyFactory kf = KeyFactory.getInstance("EC");
             return kf.generatePrivate(spec);
         } catch (Exception e) {
+            log.warn("[APPLE][KEY] load failed. len={}, head={}",
+                    p8 == null ? -1 : p8.length(),
+                    p8 == null ? "null" : p8.substring(0, Math.min(30, p8.length())).replaceAll("\\s"," "));
             throw new IllegalStateException("Apple private key 로드 실패", e);
         }
     }
