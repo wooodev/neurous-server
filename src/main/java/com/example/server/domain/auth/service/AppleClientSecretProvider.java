@@ -22,17 +22,15 @@ import lombok.RequiredArgsConstructor;
 public class AppleClientSecretProvider {
 
     private final OAuthProperties oAuthProperties;
-    OAuthProperties.Apple apple = oAuthProperties.getApple();
 
     public String createClientSecret() {
+
+        OAuthProperties.Apple apple = oAuthProperties.getApple();
 
         log.info("[APPLE][KEY] injected len={}, startsWithPem={}",
                 apple.getPrivateKey() == null ? -1 : apple.getPrivateKey().length(),
                 apple.getPrivateKey() != null && apple.getPrivateKey().contains("BEGIN PRIVATE KEY"));
-
-
-        OAuthProperties.Apple apple = oAuthProperties.getApple();
-
+        
         Instant now = Instant.now();
         Instant exp = now.plusSeconds(300); // 5분
 
