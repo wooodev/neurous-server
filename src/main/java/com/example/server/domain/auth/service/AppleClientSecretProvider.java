@@ -1,5 +1,7 @@
 package com.example.server.domain.auth.service;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.security.KeyFactory;
 import java.security.PrivateKey;
 import java.security.spec.PKCS8EncodedKeySpec;
@@ -47,10 +49,16 @@ public class AppleClientSecretProvider {
                 .compact();
     }
 
-    private PrivateKey loadPrivateKey(String p8) {
+    private PrivateKey loadPrivateKey(String value) {
+        String p8 = null;
         try {
-            if (p8 == null || p8.isBlank()) {
+            if (value == null || value.isBlank()) {
                 throw new IllegalArgumentException("privateKey is blank");
+            }
+
+            p8 = value;
+            if (value.startsWith("/") || value.endsWith(".p8")) {
+                p8 = Files.readString(Path.of(value));
             }
 
             String key = p8
