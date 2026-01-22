@@ -51,7 +51,8 @@ public enum SuccessMessage {
 	UPDATE_SUCCESS_NOTIFICATION_READ(HttpStatus.OK.value(), " 알림 읽은 여부를 업데이트 하였습니다"),
 
 	//201
-	ACCESS_TOKEN_REISSUE_SUCCESS(HttpStatus.CREATED.value(), "액세스 토큰 재발급이 완료되었습니다.");
+	ACCESS_TOKEN_REISSUE_SUCCESS(HttpStatus.CREATED.value(), "액세스 토큰 재발급이 완료되었습니다."),
+	WITHDRAW_SUCCESS(HttpStatus.OK.value(), "회원 탈퇴가 완료되었습니다");
 
 	private final int status;
 	private final String message;
