@@ -5,6 +5,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
 import com.example.server.domain.auth.dto.KakaoUserInfo;
@@ -46,7 +47,7 @@ public class KakaoApiClient implements OAuthClient {
 		HttpEntity<Void> request = new HttpEntity<>(headers);
 
 		ResponseEntity<KakaoUserInfo> response = restTemplate.exchange(url, HttpMethod.GET, request,
-			KakaoUserInfo.class);
+				KakaoUserInfo.class);
 
 		KakaoUserInfo body = response.getBody();
 		if (body == null) {
@@ -63,5 +64,24 @@ public class KakaoApiClient implements OAuthClient {
 		headers.set("Content-type", "application/x-www-form-urlencoded;charset=utf-8");
 
 		return headers;
+	}
+
+	@Override
+	public void unlink(String accessToken) {
+		try {
+			HttpHeaders headers = new HttpHeaders();
+			headers.setBearerAuth(accessToken);
+
+			HttpEntity<Void> request = new HttpEntity<>(headers);
+
+			restTemplate.exchange(
+					oAuthProperties.getKakao().getUnlinkUrl(),
+					HttpMethod.POST,
+					request,
+					String.class
+			);
+		} catch (RestClientException e) {
+			throw new NeurousException(ErrorMessage.OAUTH2_KAKAO_API_ERROR);
+		}
 	}
 }

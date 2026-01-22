@@ -5,6 +5,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
 import com.example.server.domain.auth.dto.NaverUserInfo;
@@ -16,6 +17,7 @@ import com.example.server.global.security.oauth.OAuthProperties;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.web.util.UriComponentsBuilder;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -46,10 +48,10 @@ public class NaverApiClient implements OAuthClient {
 		HttpEntity<Void> request = new HttpEntity<>(headers);
 
 		ResponseEntity<NaverUserInfo> response = restTemplate.exchange(
-			url,
-			HttpMethod.GET,
-			request,
-			NaverUserInfo.class
+				url,
+				HttpMethod.GET,
+				request,
+				NaverUserInfo.class
 		);
 
 		NaverUserInfo body = response.getBody();
@@ -74,5 +76,23 @@ public class NaverApiClient implements OAuthClient {
 		headers.set("Content-type", "application/x-www-form-urlencoded;charset=utf-8");
 
 		return headers;
+	}
+
+	@Override
+	public void unlink(String accessToken) {
+		try {
+			String url = UriComponentsBuilder
+					.fromHttpUrl(oAuthProperties.getNaver().getTokenUrl())
+					.queryParam("grant_type", "delete")
+					.queryParam("client_id", oAuthProperties.getNaver().getClientId())
+					.queryParam("client_secret", oAuthProperties.getNaver().getClientSecret())
+					.queryParam("access_token", accessToken)
+					.queryParam("service_provider", "NAVER")
+					.toUriString();
+
+			restTemplate.getForEntity(url, String.class);
+		} catch (RestClientException e) {
+			throw new NeurousException(ErrorMessage.OAUTH2_NAVER_API_ERROR);
+		}
 	}
 }

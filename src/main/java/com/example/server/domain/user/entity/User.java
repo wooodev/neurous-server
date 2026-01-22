@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import com.example.server.domain.auth.dto.OAuthUserInfo;
 import com.example.server.domain.auth.enums.OAuthProvider;
@@ -65,7 +66,7 @@ public class User extends BaseTimeEntity {
 	@Column(name = "profile_img_file_name")
 	private String profileImgFileName = "lv1_profile.png"; // 기본값 설정
 
-	@Column(unique = true, length = 50)
+	@Column(unique = true, length = 255)
 	@Email
 	private String email; //*소셜로그인값
 
@@ -144,11 +145,11 @@ public class User extends BaseTimeEntity {
 		}
 
 		return User.builder()
-			.name(oauthUserInfo.getName())
-			.provider(provider)
-			.providerId(oauthUserInfo.getProviderId())
-			.email(oauthUserInfo.getEmail())
-			.build();
+				.name(oauthUserInfo.getName())
+				.provider(provider)
+				.providerId(oauthUserInfo.getProviderId())
+				.email(oauthUserInfo.getEmail())
+				.build();
 	}
 
 	public void updateSocialInfo(String name, String email) {
@@ -182,11 +183,11 @@ public class User extends BaseTimeEntity {
 
 		for (int i = 0; i < fields.size(); i++) {
 			this.interests.add(
-				UserInterest.of(
-					this,
-					fields.get(i),
-					Priority.fromIndex(i)
-				)
+					UserInterest.of(
+							this,
+							fields.get(i),
+							Priority.fromIndex(i)
+					)
 			);
 		}
 		//선택한 개수 업데이트 ( 미션 컨텐츠 제공에서 사용)
@@ -307,12 +308,47 @@ public class User extends BaseTimeEntity {
 	public ContentLevel getContentLevel() {
 		if (this.level == null)
 			return ContentLevel.BEGINNER;
-		
+
 		try {
 			return ContentLevel.valueOf(this.level.name());
 		} catch (IllegalArgumentException e) {
 			return ContentLevel.BEGINNER; // 매핑 실패 시 기본값
 		}
+	}
+
+	@Column(name = "apple_refresh_token", length = 1024)
+	private String appleRefreshToken;
+
+	public String getAppleRefreshToken() {
+		return appleRefreshToken;
+	}
+
+	public void updateAppleRefreshToken(String token) {
+		if (token != null && !token.isBlank()) {
+			this.appleRefreshToken = token;
+		}
+	}
+
+	public void withdrawAndAnonymize() {
+		this.status = UserStatus.DELETED;
+
+		String uid = UUID.randomUUID().toString().replace("-", "");
+
+		// 재가입 시 providerId로 기존 탈퇴 유저가 잡히지 않도록 익명화
+		this.providerId = "deleted_" + uid;
+
+		// 이메일도 유니크/식별 방지를 위해 익명화
+		this.email = "deleted_" + uid + "@deleted.local";
+
+		// 이름 익명화
+		this.name = "탈퇴회원";
+
+		// 애플 토큰 제거
+		this.appleRefreshToken = null;
+
+		// 온보딩/알림 상태 초기화
+		this.signUpComplete = false;
+		this.notificationStatus = false;
 	}
 
 }

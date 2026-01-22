@@ -7,4 +7,6 @@ public interface OAuthClient {
 	OAuthUserInfo getUserInfo(String accessToken);
 
 	OAuthProvider getProvider();
+
+	void unlink(String token);
 }
