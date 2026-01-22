@@ -58,7 +58,7 @@ public class AuthService {
 
 		user.updateLastLoginAt(LocalDateTime.now());
 
-		return LoginResponse.of(accessToken, refreshToken, userInfo, isSignUpComplete);
+		return LoginResponse.of(accessToken, refreshToken, userInfo, !isSignUpComplete);
 	}
 
 	@Transactional
