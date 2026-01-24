@@ -70,14 +70,14 @@ public class MissionService {
 		int totalCount = interests.size();
 
 		if (totalCount == 1) {
-			// 1순위 키워드에서 5개
-			resultContents.addAll(fetchContents(userId,userLevel, interests.get(0), 5));
+			// 1순위 키워드에서 3개
+			resultContents.addAll(fetchContents(userId,userLevel, interests.get(0), 3));
 		} else if (totalCount == 2) {
-			// 1순위 3개 / 2순위 2개
-			resultContents.addAll(fetchContents(userId, userLevel, interests.get(0), 3));
-			resultContents.addAll(fetchContents(userId, userLevel, interests.get(1), 2));
+			// 1순위 2개 / 2순위 1개
+			resultContents.addAll(fetchContents(userId, userLevel, interests.get(0), 2));
+			resultContents.addAll(fetchContents(userId, userLevel, interests.get(1), 1));
 		} else if (totalCount >= 3) {
-			resultContents.addAll(fetchContents(userId, userLevel, interests.get(0), 3));
+			resultContents.addAll(fetchContents(userId, userLevel, interests.get(0), 1));
 			resultContents.addAll(fetchContents(userId, userLevel, interests.get(1), 1));
 			resultContents.addAll(fetchContents(userId, userLevel, interests.get(2), 1));
 		}
