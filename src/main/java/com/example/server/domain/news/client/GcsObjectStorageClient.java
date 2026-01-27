@@ -7,12 +7,14 @@ import com.google.cloud.storage.Storage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
 @Slf4j
 @Component
 @RequiredArgsConstructor
 @ConditionalOnProperty(name = "gcs.object-storage.provider", havingValue = "gcs")
+@Profile("!test")
 public class GcsObjectStorageClient implements ObjectStorageClient {
 
     private final Storage storage;
