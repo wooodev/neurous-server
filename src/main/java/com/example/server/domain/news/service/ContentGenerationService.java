@@ -27,7 +27,7 @@ import java.util.List;
 @Slf4j
 @RequiredArgsConstructor
 @Service
-@zProfile("!test")
+@Profile("!test")
 public class ContentGenerationService {
 
     private final NewsArticleRepository newsArticleRepository;
