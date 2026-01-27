@@ -26,6 +26,9 @@ services:
       - SPRING_DATA_REDIS_HOST=redis
       - SPRING_DATA_REDIS_PORT=6379
       - TZ=Asia/Seoul
+      - GOOGLE_APPLICATION_CREDENTIALS= /secrets/gcp-sa.json
+    volumes:
+      - /home/ubuntu/gcp-sa.json:/secrets/gcp-sa.json:ro
 
 volumes:
   redis_data:
