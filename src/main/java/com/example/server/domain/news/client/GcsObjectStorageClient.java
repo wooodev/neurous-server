@@ -1,6 +1,7 @@
 package com.example.server.domain.news.client;
 
 import com.example.server.domain.news.dto.GcsObjectStorageProperties;
+import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.storage.BlobInfo;
 import com.google.cloud.storage.Storage;
 import lombok.RequiredArgsConstructor;
@@ -24,6 +25,14 @@ public class GcsObjectStorageClient implements ObjectStorageClient {
 
     @Override
     public String uploadPng(String key, byte[] pngBytes) {
+
+        try {
+            GoogleCredentials creds = GoogleCredentials.getApplicationDefault();
+            log.info("[GCS] credentialClass={}", creds.getClass().getName());
+        } catch (Exception e) {
+            log.warn("[GCS] failed to get ADC credential class. msg={}", e.getMessage());
+        }
+
         BlobInfo blobInfo = BlobInfo.newBuilder(props.bucket(), key)
                 .setContentType("image/png")
                 .build();
