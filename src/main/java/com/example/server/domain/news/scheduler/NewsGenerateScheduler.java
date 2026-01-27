@@ -4,6 +4,7 @@ import com.example.server.domain.news.service.ContentGenerationService;
 import com.example.server.domain.news.service.NewsCrawlingService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.annotation.Profile;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -12,6 +13,7 @@ import java.time.OffsetDateTime;
 @Slf4j
 @Component
 @RequiredArgsConstructor
+@Profile("!test")
 public class NewsGenerateScheduler {
 
     private final NewsCrawlingService newsCrawlingService;
