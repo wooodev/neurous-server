@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import com.example.server.domain.user.controller.docs.NotificationControllerDocs;
-import com.example.server.domain.user.controller.dto.response.NotificationResponse;
+import com.example.server.domain.user.dto.response.NotificationResponse;
 import com.example.server.domain.user.service.NotificationService;
 import com.example.server.global.annotation.CurrentUserId;
 import com.example.server.global.exception.dto.SuccessResponse;

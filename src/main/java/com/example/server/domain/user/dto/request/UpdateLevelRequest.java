@@ -1,4 +1,4 @@
-package com.example.server.domain.user.controller.dto.request;
+package com.example.server.domain.user.dto.request;
 
 import com.example.server.domain.user.entity.vo.Level;
 

@@ -1,4 +1,4 @@
-package com.example.server.domain.user.controller.dto.response;
+package com.example.server.domain.user.dto.response;
 
 import com.example.server.domain.user.entity.vo.Priority;
 import com.example.server.domain.user.entity.vo.UserInterest;

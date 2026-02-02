@@ -1,4 +1,4 @@
-package com.example.server.domain.user.controller.dto.response;
+package com.example.server.domain.user.dto.response;
 
 import com.example.server.domain.user.entity.DifficultyLevel;
 import com.example.server.domain.user.entity.vo.Level;

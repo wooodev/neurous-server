@@ -5,7 +5,7 @@ import java.util.List;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
-import com.example.server.domain.user.controller.dto.response.NotificationResponse;
+import com.example.server.domain.user.dto.response.NotificationResponse;
 import com.example.server.global.exception.dto.SuccessResponse;
 
 import io.swagger.v3.oas.annotations.Operation;

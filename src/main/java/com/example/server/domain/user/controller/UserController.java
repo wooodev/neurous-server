@@ -1,12 +1,12 @@
 package com.example.server.domain.user.controller;
 
-import com.example.server.domain.user.controller.dto.request.WithdrawRequest;
+import com.example.server.domain.user.dto.request.WithdrawRequest;
 import org.springframework.web.bind.annotation.*;
 
 import com.example.server.domain.user.controller.docs.UserControllerDocs;
-import com.example.server.domain.user.controller.dto.request.UpdateInterestsRequest;
-import com.example.server.domain.user.controller.dto.request.UpdateLevelRequest;
-import com.example.server.domain.user.controller.dto.response.UserInterestsResponse;
+import com.example.server.domain.user.dto.request.UpdateInterestsRequest;
+import com.example.server.domain.user.dto.request.UpdateLevelRequest;
+import com.example.server.domain.user.dto.response.UserInterestsResponse;
 import com.example.server.domain.user.service.UserService;
 import com.example.server.global.annotation.CurrentUserId;
 import com.example.server.global.exception.dto.SuccessResponse;

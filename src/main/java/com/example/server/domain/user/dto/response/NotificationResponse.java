@@ -1,4 +1,4 @@
-package com.example.server.domain.user.controller.dto.response;
+package com.example.server.domain.user.dto.response;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;

@@ -5,7 +5,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import com.example.server.domain.user.controller.dto.response.LoadDifficultyLevel;
+import com.example.server.domain.user.dto.response.LoadDifficultyLevel;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
