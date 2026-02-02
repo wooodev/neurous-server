@@ -1,4 +1,4 @@
-package com.example.server.domain.user.controller.dto.request;
+package com.example.server.domain.user.dto.request;
 
 import java.util.List;
 

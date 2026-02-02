@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.server.domain.user.controller.docs.DifficultyLevelControllerDocs;
-import com.example.server.domain.user.controller.dto.response.LoadDifficultyLevel;
+import com.example.server.domain.user.dto.response.LoadDifficultyLevel;
 import com.example.server.domain.user.entity.vo.Level;
 import com.example.server.domain.user.service.DifficultyLevelService;
 import com.example.server.global.exception.dto.SuccessResponse;

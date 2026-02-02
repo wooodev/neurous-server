@@ -5,13 +5,13 @@ import com.example.server.domain.auth.client.OAuthClientResolver;
 import com.example.server.domain.auth.enums.OAuthProvider;
 import com.example.server.domain.auth.repository.RefreshTokenRepository;
 import com.example.server.domain.auth.service.AppleOAuthTokenService;
-import com.example.server.domain.user.controller.dto.request.WithdrawRequest;
+import com.example.server.domain.user.dto.request.WithdrawRequest;
 import com.example.server.global.exception.model.BadRequestException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.example.server.domain.user.controller.dto.request.UpdateInterestsRequest;
-import com.example.server.domain.user.controller.dto.response.UserInterestsResponse;
+import com.example.server.domain.user.dto.request.UpdateInterestsRequest;
+import com.example.server.domain.user.dto.response.UserInterestsResponse;
 import com.example.server.domain.user.entity.User;
 import com.example.server.domain.user.entity.vo.Level;
 import com.example.server.domain.user.repository.UserRepository;

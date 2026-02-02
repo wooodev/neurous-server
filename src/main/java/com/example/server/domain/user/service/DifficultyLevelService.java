@@ -3,7 +3,7 @@ package com.example.server.domain.user.service;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.example.server.domain.user.controller.dto.response.LoadDifficultyLevel;
+import com.example.server.domain.user.dto.response.LoadDifficultyLevel;
 import com.example.server.domain.user.entity.DifficultyLevel;
 import com.example.server.domain.user.entity.vo.Level;
 import com.example.server.domain.user.repository.DifficultyLevelRepository;

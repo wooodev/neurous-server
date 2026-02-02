@@ -2,7 +2,7 @@ package com.example.server.domain.user.controller.docs;
 
 import org.springframework.web.bind.annotation.PathVariable;
 
-import com.example.server.domain.user.controller.dto.response.LoadDifficultyLevel;
+import com.example.server.domain.user.dto.response.LoadDifficultyLevel;
 import com.example.server.domain.user.entity.vo.Level;
 import com.example.server.global.exception.dto.SuccessResponse;
 

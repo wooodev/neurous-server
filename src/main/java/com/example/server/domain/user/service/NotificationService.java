@@ -10,7 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
-import com.example.server.domain.user.controller.dto.response.NotificationResponse;
+import com.example.server.domain.user.dto.response.NotificationResponse;
 import com.example.server.domain.user.entity.Notification;
 import com.example.server.domain.user.entity.User;
 import com.example.server.domain.user.repository.NotificationRepository;
