@@ -29,6 +29,11 @@ services:
       - GOOGLE_APPLICATION_CREDENTIALS=/secrets/gcp-sa.json
     volumes:
       - /home/ubuntu/gcp-sa.json:/secrets/gcp-sa.json:ro
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
 
 volumes:
   redis_data:
