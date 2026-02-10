@@ -10,9 +10,6 @@ public enum RedisKey {
 	//컨텐츠 조회수
 	CONTENT_HITS("contents:hits", Duration.ofDays(1)),
 
-	//최근 검색어
-	RECENT_SEARCH("recent_search:", Duration.ofDays(30)),
-
 	//metadata 캐싱 설정
 	CHARACTER_LIST("metadata:character:all", Duration.ofDays(1)),
 	CHARACTER_ITEM("metadata:character:", Duration.ofDays(1)),

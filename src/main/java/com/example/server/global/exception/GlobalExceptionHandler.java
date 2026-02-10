@@ -13,6 +13,8 @@ import com.example.server.global.exception.dto.ErrorResponse;
 import com.example.server.global.exception.message.ErrorMessage;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
+
 
 @Slf4j
 @RestControllerAdvice
@@ -89,6 +91,15 @@ public class GlobalExceptionHandler {
 		return ResponseEntity
 				.status(HttpStatus.INTERNAL_SERVER_ERROR)
 				.body(ErrorResponse.of(ErrorMessage.INTERNAL_SERVER_ERROR));
+	}
+
+	@ExceptionHandler(NoResourceFoundException.class)
+	public ResponseEntity<ErrorResponse> handleNoResourceFound(NoResourceFoundException e, HttpServletRequest req) {
+
+		log.warn("[NO-RESOURCE] {} {} -> {}", req.getMethod(), req.getRequestURI(), e.getMessage());
+
+		return ResponseEntity.status(HttpStatus.NOT_FOUND)
+				.body(ErrorResponse.of(404, "NOT_FOUND", "요청한 API를 찾을 수 없습니다."));
 	}
 
 }
