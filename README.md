@@ -8,4 +8,4 @@ Java, Springboot, Mysql, JPA, Redis, Docker, GCP, Google gemini, Clova AI
 
 ## ⛏️ 주요 기능
 
-컨텐츠 읽기, 퀴즈 풀이, 미션 수행
+컨텐츠 읽기, 퀴즈 풀이, 미션 수행, 경험치 적용
